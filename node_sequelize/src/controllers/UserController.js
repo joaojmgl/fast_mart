@@ -1,14 +1,10 @@
 const User = require('../models/User');
-const Address = require('../models/Address');
 const bcrypt = require('bcryptjs');
-
-const Sequelize = require('sequelize');
-const dbConfig = require('../config/database');
-const sequelize = new Sequelize(dbConfig);
 
 const jwt = require('jsonwebtoken');
 
 const authConfig = require('../config/auth')
+
 
 function generateToken(params = {}) {
     return jwt.sign(params, authConfig.secret, {
@@ -41,7 +37,7 @@ module.exports = {
             }
             
             if (user.is_logged == 1) {
-                return res.status(409).send({
+                return res.status(403).send({
                     status: 0,
                     message: 'Usuário já está logado!',
                     user: {}
@@ -80,7 +76,7 @@ module.exports = {
             if (!users || users.length === 0) {
                 return res.status(200).send({ message: "Nenhum usuário cadastrado" });
             }
-    
+            
             return res.status(200).send({ users });
 
         } catch (err) {
@@ -126,56 +122,44 @@ module.exports = {
         }
     },
 
-    async store(req, res){
-        const transaction = await sequelize.transaction();
+    async store(req, res) {
         try {
-            const { name, password, email, code, birthday_date, cpf, phone, education, address } = req.body;
-    
+            const { name, password, email, code, birthday_date, cpf, phone, education } = req.body;
+
             // Verifique se o CPF já existe
             const existingCpf = await User.findOne({ where: { cpf } });
-    
-            // Verifique se o email já existe
+
             const existingEmail = await User.findOne({ where: { email } });
-    
+
             if (existingCpf) {
-                await transaction.rollback();
                 return res.status(400).send({
                     status: 0,
                     message: 'CPF já cadastrado.',
                 });
             }
-    
+
             if (existingEmail) {
-                await transaction.rollback();
-                return res.status(400).send({
+                return res.status(406).send({
                     status: 0,
                     message: 'Endereço de e-mail já cadastrado.',
                 });
             }
-    
+
             // Crie o novo usuário
-            const hashedPassword = await bcrypt.hash(password, 10); // Hash da senha
-            const user = await User.create({ name, password: hashedPassword, email, code, birthday_date, cpf, phone, education }, { transaction });
-    
-            // Crie o endereço do usuário
-            const userAddress = { ...address, user_id: user.id }; // Adicione a chave estrangeira user_id ao endereço
-            await Address.create(userAddress, { transaction });
-    
-            await transaction.commit();
-    
+            const user = await User.create({ name, password, email, code, birthday_date, cpf, phone, education });
+
             user.password = undefined; // Remova a senha da resposta
-    
+
             return res.status(200).send({
                 status: 1,
-                message: 'Usuário e endereço cadastrados com sucesso!',
+                message: 'Usuário cadastrado com sucesso!',
                 user,
             });
-    
+
         } catch (error) {
-            await transaction.rollback();
             return res.status(500).send({
                 status: 0,
-                message: 'Erro ao cadastrar usuário e endereço.',
+                message: 'Erro ao cadastrar usuário',
                 error: error.message, // Retorna a mensagem de erro para diagnóstico
             });
         }

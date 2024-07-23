@@ -23,7 +23,7 @@ module.exports = {
   
       street: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
 
       number: {
