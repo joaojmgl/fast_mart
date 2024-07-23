@@ -1,0 +1,10 @@
+-> npm run dev
+Usado para rodar o servidor
+
+-> sequelize migration:create --name=create-users
+Usado para criar um novo arquivo de migração no Sequelize CLI ("create-users" seria o nome)
+
+-> npx sequelize db:migrate
+Usado para aplicar migrações ao banco de dados usando o Sequelize CLI (rodar as migrations)
+
+!! lembrar de criar o banco de dados "trabalho" ou mudarem no código para ter outro nome, e também mudar a senha do banco de dados de vocês
