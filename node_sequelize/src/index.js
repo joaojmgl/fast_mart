@@ -1,6 +1,8 @@
 // Importando o módulo 'express', um framework web para Node.js.
 const express = require('express'); 
 
+const cors = require("cors");
+
 // Importando o arquivo de rotas do projeto.
 const routes = require('./routes.js'); 
 
@@ -16,7 +18,11 @@ app.use(express.json());
 // Usando as rotas definidas no arquivo 'routes.js'.
 app.use(routes);
 
-// Iniciando o servidor Express na porta 3333 para ouvir as solicitações.
-app.listen(3333); // O servidor estará acessível em http://localhost:3333/.
+// Configuração do CORS para permitir acesso do frontend
+app.use(cors());
 
-// SERVIDOR CONFIGURADO ACIMA
+// Iniciando o servidor Express na porta 3333 para ouvir as solicitações.
+app.listen(3333, () => {
+  console.log("Servidor backend rodando na porta 3333");
+});
+// // SERVIDOR CONFIGURADO ACIMA

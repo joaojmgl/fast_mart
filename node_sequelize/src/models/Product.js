@@ -18,7 +18,7 @@ class Product extends Model {
     }
 
     static associate(models) {
-        // Defina aqui quaisquer associações, se necessário no futuro
+        // Definir associações, se necessário no futuro
         // Exemplo: this.belongsTo(models.Category, { foreignKey: 'category_id', as: 'category' });
     }
 }
