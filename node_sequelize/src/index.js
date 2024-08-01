@@ -15,11 +15,11 @@ const app = express();
 // Habilitando o middleware do Express para análise de JSON.
 app.use(express.json());
 
-// Usando as rotas definidas no arquivo 'routes.js'.
-app.use(routes);
-
 // Configuração do CORS para permitir acesso do frontend
 app.use(cors());
+
+// Usando as rotas definidas no arquivo 'routes.js'.
+app.use(routes);
 
 // Iniciando o servidor Express na porta 3333 para ouvir as solicitações.
 app.listen(3333, () => {

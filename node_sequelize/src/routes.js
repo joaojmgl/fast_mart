@@ -28,7 +28,7 @@ router.use(authMiddleware);
 router.put('/users/:user_id', UserController.update);
 router.post('/users/logout/:user_id', UserController.logout);
 // criar a função de excluir usuário!!
-// criar função de pesquisar usuario
+// criar função de pesquisar usuario (front fazendo)
 
 // Produtos
 
@@ -37,7 +37,7 @@ router.put('/products/:code', ProductController.update);
 router.get('/products', ProductController.index);
 router.put('/products/decrease/:code', ProductController.decreaseQuantity);
 router.put('/products/increase/:code', ProductController.increaseQuantity);
-// criar função de pesquisar produto em especifico
+// criar função de pesquisar produto em especifico 
 // conferir questão de validade dos produtos
 
 
