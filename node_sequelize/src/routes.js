@@ -31,6 +31,7 @@ router.use(authMiddleware);
 // Usuários
 router.put('/users/:user_id', UserController.update);
 router.post('/users/logout/:user_id', UserController.logout);
+router.delete('/users/:user_id', UserController.delete);
 // criar a função de excluir usuário!!
 // criar função de pesquisar usuario
 
