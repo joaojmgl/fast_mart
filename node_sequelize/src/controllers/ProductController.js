@@ -3,7 +3,6 @@ const Product = require('../models/Product');
 const Sequelize = require('sequelize');
 const bcrypt = require('bcryptjs');
 
-
 const dbConfig = require('../config/database');
 const sequelize = new Sequelize(dbConfig);
 
@@ -19,9 +18,9 @@ function generateToken(params = {}) {
 
 module.exports = {
     // Função para cadastrar um novo produto
-    async store(req, res) {
+    async store(productData) {
         try {
-            const { name, unit_of_measure, purchase_price, quantity_per_unit, sale_price, expiry_date, supplier, code } = req.body;
+            const { name, unit_of_measure, purchase_price, quantity_per_unit, sale_price, expiry_date, supplier, code } = productData;
             // Verifique se o produto com o mesmo código já existe
             const existingProduct = await Product.findOne({ where: { code } });
 
@@ -37,19 +36,21 @@ module.exports = {
 
             const token = generateToken({ id: product.id });
 
-            return res.status(200).send({
-                status: 1,
-                message: 'Produto cadastrado com sucesso!',
-                product,
-                token
-            });
+            // return res.status(200).send({
+            //     status: 1,
+            //     message: 'Produto cadastrado com sucesso!',
+            //     product,
+            //     token
+            // });
+            return { status: 200, message: 'Produto cadastrado com sucesso!', product, token };
 
         } catch (error) {
-            return res.status(500).send({
-                status: 0,
-                message: 'Erro ao cadastrar produto',
-                error: error.message,
-            });
+            // return res.status(500).send({
+            //     status: 0,
+            //     message: 'Erro ao cadastrar produto',
+            //     error: error.message,
+            // });
+            return { status: 500, message: 'Erro ao cadastrar produto', error: error.message };
         }
     },
 
@@ -136,54 +137,50 @@ module.exports = {
         }
     },
 
-    
-    // Função para diminuir a quantidade de um produto
-    // A quantidade digitada será retirada da quantidade atual no estoque, se possível
-    async decreaseQuantity(req, res) {
+    async decreaseQuantity(req) {
         try {
-            const { code } = req.params;
-            const { quantity } = req.body;
-
+            const { code, quantity } = req.body;
+    
             if (!quantity || quantity <= 0) {
-                return res.status(400).send({
+                return {
                     status: 0,
                     message: 'Quantidade deve ser um valor positivo.',
-                });
+                };
             }
-
+    
             const product = await Product.findOne({ where: { code } });
-
+    
             if (!product) {
-                return res.status(404).send({
+                return {
                     status: 0,
                     message: 'Produto não encontrado.',
-                });
+                };
             }
 
             if (product.quantity_per_unit < quantity) {
-                return res.status(409).send({
+                return {
                     status: 0,
                     message: 'Quantidade insuficiente em estoque.',
-                });
+                };
             }
-
+    
             product.quantity_per_unit -= parseFloat(quantity);
             await product.save();
-
-            return res.status(200).send({
+    
+            return {
                 status: 1,
                 message: 'Quantidade de produto diminuída com sucesso!',
                 product,
-            });
-
+            };
         } catch (error) {
-            return res.status(500).send({
+            return {
                 status: 0,
                 message: 'Erro ao diminuir quantidade de produto',
                 error: error.message,
-            });
+            };
         }
-    },
+    },    
+    
 
     // Função para aumentar a quantidade de um produto
     // A quantidade digitada será adionada a quantidade atual no estoque
@@ -224,7 +221,44 @@ module.exports = {
                 error: error.message,
             });
         }
+    },
+
+    async searchByName(req, res) {
+        try {
+            const { name } = req.body; 
+    
+            if (!name) {
+                return res.status(400).send({
+                    status: 0,
+                    message: 'Nome do produto é obrigatório.',
+                });
+            }
+    
+            // Pesquisar o produto pelo nome
+            const product = await Product.findOne({ where: { name } });
+    
+            if (!product) {
+                return res.status(404).send({
+                    status: 0,
+                    message: 'Produto não encontrado.',
+                });
+            }
+    
+            return res.status(200).send({
+                status: 1,
+                message: 'Produto encontrado com sucesso!',
+                product,
+            });
+    
+        } catch (error) {
+            return res.status(500).send({
+                status: 0,
+                message: 'Erro ao buscar produto',
+                error: error.message,
+            });
+        }
     }
+    
 };
 
 

@@ -165,63 +165,81 @@ module.exports = {
         }
     },
 
-    async update(req, res) {
-        
-        const { name, password, email, code, phone, education } = req.body;
-        const { user_id } = req.params;
-
-        const user = await User.findByPk(user_id);
-
-        if (!user) {
-            return res.status(404).send({
-                status: 0,
-                message: 'Usuário não encontrado.',
-            });
-        }
-    
-        try {
-            // Verificar se a senha foi fornecida e criptografá-la
-            let updateData = { name, email, code, phone, education };
-            if (password) {
-                try {
-                    const hashedPassword = await bcrypt.hash(password, 10);
-                    updateData.password = hashedPassword;
-                } catch (err) {
-                    return res.status(503).send({
-                        status: 0,
-                        message: "Erro ao criptografar a senha.",
-                        error: err.message
-                    });
-                }
-            }
-    
-            // Atualizar o usuário no banco de dados
-            try {
-                await User.update(updateData, {
-                    where: {
-                        id: user_id
-                    }
-                });
-            } catch (err) {
-                return res.status(502).send({
-                    status: 0,
-                    message: "Erro ao atualizar o usuário no banco de dados.",
-                    error: err.message
-                });
-            }
-    
-            return res.status(200).send({
-                status: 1,
-                message: "Usuário atualizado com sucesso!",
-            });
-
-        } catch (err) {
-            return res.status(500).send({
-                status: 0,
-                message: "Erro ao processar a atualização do usuário.",
-                error: err.message
-            });
-        }
+    async update(req, res) { 
+ 
+        const { name, email, code, birthday_date, cpf, phone, education } = req.body; 
+ 
+        const { user_id } = req.params; 
+ 
+        const user = await User.findByPk(user_id); 
+ 
+        if (!user) { 
+            return res.status(404).send({ 
+                status: 0, 
+                message: 'Usuário não encontrado.', 
+            }); 
+        } 
+     
+        try { 
+            // Verificar se a senha foi fornecida e criptografá-la 
+            let updateData = { name, email, code, birthday_date, cpf, phone, education }; 
+     
+            // Atualizar o usuário no banco de dados 
+            try { 
+                await User.update(updateData, { 
+                    where: { 
+                        id: user_id 
+                    } 
+                }); 
+            } catch (err) { 
+                return res.status(502).send({ 
+                    status: 0, 
+                    message: "Erro ao atualizar o usuário no banco de dados.", 
+                    error: err.message 
+                }); 
+            } 
+     
+            return res.status(200).send({ 
+                status: 1, 
+                message: "Usuário atualizado com sucesso!", 
+            }); 
+ 
+        } catch (err) { 
+            return res.status(500).send({ 
+                status: 0, 
+                message: "Erro ao processar a atualização do usuário.", 
+                error: err.message 
+            }); 
+        } 
+    }, 
+ 
+    async delete(req, res) { 
+        try { 
+ 
+            const { user_id } = req.params; 
+     
+            const user = await User.findOne({ where: {id: user_id} }); 
+     
+            if (!user) { 
+                return res.status(404).send({ 
+                    status: 0, 
+                    message: "Usuário não encontrado", 
+                }); 
+            } 
+     
+            await User.destroy({ where: { id: user_id } }); 
+     
+            return res.status(200).send({ 
+                status: 1, 
+                message: "Usuário deletado com sucesso!", 
+            }); 
+     
+        } catch (err) { 
+            return res.status(500).send({ 
+                status: 0, 
+                message: 'Erro interno do servidor.', 
+                error: err.message, 
+            }); 
+        } 
     }
-    
 };
