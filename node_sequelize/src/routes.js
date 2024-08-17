@@ -6,6 +6,7 @@ const router = express.Router(); // Criando uma instância do roteador do Expres
 const UserController = require('./controllers/UserController'); // Importando o UserController
 const ProductController = require('./controllers/ProductController'); // Importando o ProductController
 const CompanyController =  require('./controllers/CompanyController');
+const FinanceController = require('./controllers/FinanceController');
 const authMiddleware = require('./middlewares/auth');
 
 module.exports = router; // Exportando o roteador para que possa ser utilizado em outros arquivos do projeto.
@@ -22,6 +23,18 @@ router.post('/products', ProductController.store);
 router.get('/companys', CompanyController.index);
 router.get('/companys/:company_id', CompanyController.show);
 router.post('/companys', CompanyController.store);
+router.put('/companys/:company_id', CompanyController.update);
+
+// Rotas de finanças
+router.post('/finances', FinanceController.store);
+router.get('/finances', FinanceController.index);
+
+// Rotas de finanças  - Venda
+
+//Colocar depois no lugar certo
+router.post('/sales', FinanceController.recordSale );
+router.put('/products/decrease', ProductController.decreaseQuantity);
+router.get('/products/search', ProductController.searchByName);
 
 // ==============================================================================
 // A partir daqui as funções precisarão do token!

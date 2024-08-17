@@ -14,7 +14,7 @@ class Address extends Model {
     }
     /*Endereço (rua, número, bairro, cidade, estado, país, complemento)*/
     static associate(models) {
-      this.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
+        this.hasOne(models.company, { foreignKey: 'addresses_id', as: 'company' });
     }
 }
 
