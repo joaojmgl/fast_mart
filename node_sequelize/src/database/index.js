@@ -8,6 +8,7 @@ const Company = require('../models/Company');
 const Finance = require('../models/Finance');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
+const DeletedProduct = require('../models/DeletedProduct');
 
 const connection = new Sequelize(dbConfig);
 
@@ -17,8 +18,11 @@ Company.init(connection);
 Finance.init(connection);
 Product.init(connection);
 Category.init(connection);
+DeletedProduct.init(connection);
 
 Product.associate(connection.models)
 Address.associate(connection.models);
 User.associate(connection.models);
+Finance.associate(connection.models);
+Company.associate(connection.models);
 module.exports = connection;

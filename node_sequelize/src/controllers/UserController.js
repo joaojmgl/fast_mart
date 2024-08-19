@@ -1,245 +1,356 @@
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
 
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
-const authConfig = require('../config/auth')
-
+const authConfig = require("../config/auth");
 
 function generateToken(params = {}) {
-    return jwt.sign(params, authConfig.secret, {
-        expiresIn: 78300,
-    });
+  return jwt.sign(params, authConfig.secret, {
+    expiresIn: 78300,
+  });
 }
 
 module.exports = {
+  async login(req, res) {
+    const { password, email } = req.body;
 
-    async login(req, res) {
-        const { password, email } = req.body;
-    
-        try {
-            const user = await User.findOne({ where: { email } });
-    
-            if (!user) {
-                return res.status(400).send({
-                    status: 0,
-                    message: 'E-mail ou senha incorreto!',
-                    user: {}
-                });
-            }
-            
-            if (!bcrypt.compareSync(password, user.password)) {
-                return res.status(400).send({
-                    status: 0,
-                    message: 'E-mail ou senha incorreto!',
-                    user: {}
-                });
-            }
-            
-            if (user.is_logged == 1) {
-                return res.status(403).send({
-                    status: 0,
-                    message: 'Usuário já está logado!',
-                    user: {}
-                });
-            }
-            const user_id = user.id;
-    
-            await User.update({ is_logged: 1 }, { where: { id: user_id } });
-    
-            user.password = undefined;
-    
-            const token = generateToken({ id: user.id });
-    
-            return res.status(200).send({
-                status: 1,
-                message: "Usuário logado com sucesso!",
-                user,
-                token
-            });
-        } catch (err) {
-            return res.status(500).send({
-                status: 0,
-                message: 'Erro ao processar o login do usuário.',
-                error: err.message
-            });
-        }
-    },
+    try {
+      const user = await User.findOne({ where: { email } });
 
-    async index(req, res) {
-        try {
-            
-            const users = await User.findAll({
-                attributes: { exclude: ['password'] } // Exclui a senha da resposta
-            });
-    
-            if (!users || users.length === 0) {
-                return res.status(200).send({ message: "Nenhum usuário cadastrado" });
-            }
-            
-            return res.status(200).send({ users });
+      if (!user) {
+        return res.status(400).send({
+          status: 0,
+          message: "E-mail ou senha incorreto!",
+          user: {},
+        });
+      }
 
-        } catch (err) {
-            return res.status(500).send({
-                status: 0,
-                message: 'Erro ao buscar usuários.',
-                error: err.message
-            });
-        }
-    },
+      if (!bcrypt.compareSync(password, user.password)) {
+        return res.status(400).send({
+          status: 0,
+          message: "E-mail ou senha incorreto!",
+          user: {},
+        });
+      }
 
-    async logout(req, res) {
-        try {
-            const { user_id } = req.params;
-            
-            const user = await User.findOne({ where: { id: user_id } });
+      if (user.is_logged == 1) {
+        return res.status(403).send({
+          status: 0,
+          message: "Usuário já está logado!",
+          user: {},
+        });
+      }
+      const user_id = user.id;
 
-            if (!user || user.length === 0) {
-                return res.status(200).send({ message: "Usuário não cadastrado." });
-            }
+      await User.update({ is_logged: 1 }, { where: { id: user_id } });
 
-            if (user.is_logged == 0) {
-                return res.status(400).send({
-                    status: 0,
-                    message: 'Usuário não está logado!'
-                });
-            }
+      user.password = undefined;
 
-            // Atualiza o campo isLogged para false ou limpa informações de sessão
-            await User.update({ is_logged: false }, { where: { id: user_id } });
+      const token = generateToken({ id: user.id });
 
-            return res.status(200).send({
-                status: 1,
-                message: 'Usuário deslogado com sucesso!'
-            });
+      return res.status(200).send({
+        status: 1,
+        message: "Usuário logado com sucesso!",
+        user,
+        token,
+      });
+    } catch (err) {
+      return res.status(500).send({
+        status: 0,
+        message: "Erro ao processar o login do usuário.",
+        error: err.message,
+      });
+    }
+  },
 
-        } catch (error) {
-            return res.status(500).send({
-                status: 0,
-                message: 'Erro ao tentar deslogar',
-                error: error.message
-            });
-        }
-    },
+  async index(req, res){
+    try {
+      const users = await User.findAll({
+        attributes: { exclude: ["password"] }, // Exclui a senha da resposta
+      });
 
-    async store(req, res) {
-        try {
-            const { name, password, email, code, birthday_date, cpf, phone, education } = req.body;
+      if (!users || users.length === 0) {
+        return res.status(200).send({ message: "Nenhum usuário cadastrado" });
+      }
 
-            // Verifique se o CPF já existe
-            const existingCpf = await User.findOne({ where: { cpf } });
+      return res.status(200).send({ users });
+    } catch (err) {
+      return res.status(500).send({
+        status: 0,
+        message: "Erro ao buscar usuários.",
+        error: err.message,
+      });
+    }
+  },
 
-            const existingEmail = await User.findOne({ where: { email } });
+  async logout(req, res) {
+    try {
+      const { user_id } = req.params;
 
-            if (existingCpf) {
-                return res.status(400).send({
-                    status: 0,
-                    message: 'CPF já cadastrado.',
-                });
-            }
+      const user = await User.findOne({ where: { id: user_id } });
 
-            if (existingEmail) {
-                return res.status(406).send({
-                    status: 0,
-                    message: 'Endereço de e-mail já cadastrado.',
-                });
-            }
+      if (!user || user.length === 0) {
+        return res.status(200).send({ message: "Usuário não cadastrado." });
+      }
 
-            // Crie o novo usuário
-            const user = await User.create({ name, password, email, code, birthday_date, cpf, phone, education });
+      if (user.is_logged == 0) {
+        return res.status(400).send({
+          status: 0,
+          message: "Usuário não está logado!",
+        });
+      }
 
-            user.password = undefined; // Remova a senha da resposta
+      // Atualiza o campo isLogged para false ou limpa informações de sessão
+      await User.update({ is_logged: false }, { where: { id: user_id } });
 
-            return res.status(200).send({
-                status: 1,
-                message: 'Usuário cadastrado com sucesso!',
-                user,
-            });
+      return res.status(200).send({
+        status: 1,
+        message: "Usuário deslogado com sucesso!",
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: 0,
+        message: "Erro ao tentar deslogar",
+        error: error.message,
+      });
+    }
+  },
 
-        } catch (error) {
-            return res.status(500).send({
-                status: 0,
-                message: 'Erro ao cadastrar usuário',
-                error: error.message, // Retorna a mensagem de erro para diagnóstico
-            });
-        }
-    },
+  async store(req, res) {
+    try {
+      const {
+        name,
+        password,
+        email,
+        code,
+        birthday_date,
+        cpf,
+        phone,
+        education,
+      } = req.body;
 
-    async update(req, res) { 
+      // Verifique se o CPF já existe
+      const existingCpf = await User.findOne({ where: { cpf } });
+
+      const existingEmail = await User.findOne({ where: { email } });
+
+      if (existingCpf) {
+        return res.status(400).send({
+          status: 0,
+          message: "CPF já cadastrado.",
+        });
+      }
+
+      if (existingEmail) {
+        return res.status(406).send({
+          status: 0,
+          message: "Endereço de e-mail já cadastrado.",
+        });
+      }
+
+      // Crie o novo usuário
+      const user = await User.create({
+        name,
+        password,
+        email,
+        code,
+        birthday_date,
+        cpf,
+        phone,
+        education,
+      });
+
+      user.password = undefined; // Remova a senha da resposta
+
+      return res.status(200).send({
+        status: 1,
+        message: "Usuário cadastrado com sucesso!",
+        user,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: 0,
+        message: "Erro ao cadastrar usuário",
+        error: error.message, // Retorna a mensagem de erro para diagnóstico
+      });
+    }
+  },
+
+  async update(req, res) { 
  
-        const { name, email, code, birthday_date, cpf, phone, education } = req.body; 
+    const { name, email, code, birthday_date, cpf, phone, education } = req.body; 
+
+    const { user_id } = req.params; 
+
+    const user = await User.findByPk(user_id); 
+
+    if (!user) { 
+        return res.status(404).send({ 
+            status: 0, 
+            message: 'Usuário não encontrado.', 
+        }); 
+    } 
  
+    try { 
+        // Verificar se a senha foi fornecida e criptografá-la 
+        let updateData = { name, email, code, birthday_date, cpf, phone, education }; 
+ 
+        // Atualizar o usuário no banco de dados 
+        try { 
+            await User.update(updateData, { 
+                where: { 
+                    id: user_id 
+                } 
+            }); 
+        } catch (err) { 
+            return res.status(502).send({ 
+                status: 0, 
+                message: "Erro ao atualizar o usuário no banco de dados.", 
+                error: err.message 
+            }); 
+        } 
+ 
+        return res.status(200).send({ 
+            status: 1, 
+            message: "Usuário atualizado com sucesso!", 
+        }); 
+
+    } catch (err) { 
+        return res.status(500).send({ 
+            status: 0, 
+            message: "Erro ao processar a atualização do usuário.", 
+            error: err.message 
+        }); 
+    } 
+}, 
+
+async delete(req, res) { 
+    try { 
+
         const { user_id } = req.params; 
  
-        const user = await User.findByPk(user_id); 
+        const user = await User.findOne({ where: {id: user_id} }); 
  
         if (!user) { 
             return res.status(404).send({ 
                 status: 0, 
-                message: 'Usuário não encontrado.', 
+                message: "Usuário não encontrado", 
             }); 
         } 
-     
-        try { 
-            // Verificar se a senha foi fornecida e criptografá-la 
-            let updateData = { name, email, code, birthday_date, cpf, phone, education }; 
-     
-            // Atualizar o usuário no banco de dados 
-            try { 
-                await User.update(updateData, { 
-                    where: { 
-                        id: user_id 
-                    } 
-                }); 
-            } catch (err) { 
-                return res.status(502).send({ 
-                    status: 0, 
-                    message: "Erro ao atualizar o usuário no banco de dados.", 
-                    error: err.message 
-                }); 
-            } 
-     
-            return res.status(200).send({ 
-                status: 1, 
-                message: "Usuário atualizado com sucesso!", 
-            }); 
  
-        } catch (err) { 
-            return res.status(500).send({ 
-                status: 0, 
-                message: "Erro ao processar a atualização do usuário.", 
-                error: err.message 
-            }); 
-        } 
-    }, 
+        await User.destroy({ where: { id: user_id } }); 
  
-    async delete(req, res) { 
-        try { 
+        return res.status(200).send({ 
+            status: 1, 
+            message: "Usuário deletado com sucesso!", 
+        }); 
  
-            const { user_id } = req.params; 
-     
-            const user = await User.findOne({ where: {id: user_id} }); 
-     
-            if (!user) { 
-                return res.status(404).send({ 
-                    status: 0, 
-                    message: "Usuário não encontrado", 
-                }); 
-            } 
-     
-            await User.destroy({ where: { id: user_id } }); 
-     
-            return res.status(200).send({ 
-                status: 1, 
-                message: "Usuário deletado com sucesso!", 
-            }); 
-     
-        } catch (err) { 
-            return res.status(500).send({ 
-                status: 0, 
-                message: 'Erro interno do servidor.', 
-                error: err.message, 
-            }); 
-        } 
+    } catch (err) { 
+        return res.status(500).send({ 
+            status: 0, 
+            message: 'Erro interno do servidor.', 
+            error: err.message, 
+        }); 
+    } 
+},
+
+async forgotPassword(req, res) {
+  const { cpf, birthday_date, newPassword } = req.body;
+
+    if (!cpf || !birthday_date || !newPassword) {
+        return res.status(400).send({
+            status: 0,
+            message: 'Dados de entrada incompletos!',
+        });
     }
+
+    try {
+        // Converte a data fornecida para o formato YYYY-MM-DD
+        const formattedBirthdayDate = new Date(birthday_date).toISOString().split('T')[0];
+
+        // Verifica se o usuário existe com o CPF 
+        const user = await User.findOne({
+            where: { cpf }
+        });
+
+        const dataformatada = new Date(user.birthday_date).toISOString().split('T')[0];
+
+        if (!user || formattedBirthdayDate!=dataformatada) {
+            return res.status(400).send({
+                status: 0,
+                message: 'CPF ou data de nascimento incorretos!',
+            });
+        }
+
+        // Atualiza a senha com criptografia
+        const salt = bcrypt.genSaltSync();
+        const hashedPassword = bcrypt.hashSync(newPassword, salt);
+
+        await User.update({ password: hashedPassword }, { where: { id: user.id } });
+
+        return res.status(200).send({
+            status: 1,
+            message: 'Senha redefinida com sucesso!',
+        });
+
+    } catch (err) {
+        return res.status(500).send({
+            status: 0,
+            message: 'Erro ao redefinir a senha.',
+            error: err.message,
+        });
+    }
+},
+
+async changePassword(req, res) {
+
+  const { email, oldPassword, newPassword } = req.body;
+
+  const { user_id } = req.params; 
+
+  const user = await User.findByPk(user_id);
+
+  console.log(email);
+
+  try {
+      // Busca o usuário pelo email
+
+      console.log(user);
+
+      if (!user || user.email!=email) {
+          return res.status(404).send({
+              status: 0,
+              message: 'Usuário não encontrado!',
+          });
+      }
+
+      // Verifica se a senha antiga está correta
+      if (!bcrypt.compareSync(oldPassword, user.password)) {
+          return res.status(400).send({
+              status: 0,
+              message: 'Senha antiga incorreta!',
+          });
+      }
+
+      // Atualiza a senha com criptografia
+      const salt = bcrypt.genSaltSync();
+      const hashedPassword = bcrypt.hashSync(newPassword, salt);
+
+      await User.update({ password: hashedPassword }, { where: { id: user.id } });
+
+      return res.status(200).send({
+          status: 1,
+          message: 'Senha alterada com sucesso!',
+      });
+
+  } catch (err) {
+      return res.status(500).send({
+          status: 0,
+          message: 'Erro ao alterar a senha.',
+          error: err.message,
+      });
+  }
+},
+
 };
