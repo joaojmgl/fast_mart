@@ -1,5 +1,6 @@
 const Finance = require('../models/Finance');
 const Product = require('../models/Product');
+const User = require('../models/User');
 
 const Sequelize = require('sequelize');
 
@@ -10,12 +11,26 @@ const moment = require('moment');
 const productController = require('./ProductController');
 
 module.exports = {
-    async store(req, res) {
-        const { date, description, value, quantity, expiry_date, product, payment_method } = req.body;
+
+    // Função de compra 
+    async store(req, res) { 
+        const { date, value, quantity, expiry_date, product, payment_method } = req.body;
+        const { user_id } = req.params;
         const {code} = product;
+        const description = "Compra";
+
+        const user = await User.findByPk(user_id);
+        const id_empresa = user.id_empresa;
+        
         try {
             // Cadastrar o produto primeiro
-            const existingProduct = await Product.findOne({ where: { code } });
+            const existingProduct = await Product.findOne({
+                where: {
+                    code,
+                    id_empresa
+                }
+            });
+
             if (existingProduct){
                 if(!(existingProduct.name == product.name)){
                     return res.status(400).send({
@@ -23,6 +38,7 @@ module.exports = {
                         message:`Nome de produto invalido, codigo ja registrado como ${existingProduct.name}`
                     })
                 }
+
                 const data_finance = {date,description,value,quantity,expiry_date,product_id:existingProduct.id,payment_method}
                 productController.increaseQuantity(code,quantity,expiry_date)
                 const finance_entry = await Finance.create(data_finance)
@@ -32,10 +48,11 @@ module.exports = {
                     finance_entry
                 });
             }
-            const newProduct = await productController.store(product,quantity,expiry_date);
+
+            const newProduct = await productController.store(product,quantity,expiry_date, id_empresa);
 
             // Usar o ID do produto cadastrado para criar a entrada de finanças
-            const financeEntry = await Finance.create({date,description,value,product_id: newProduct.product.id,quantity,expiry_date,payment_method});
+            const financeEntry = await Finance.create({date,description,value,product_id: newProduct.product.id,quantity,expiry_date,payment_method, id_empresa});
 
             return res.status(201).json(financeEntry);
         } catch (error) {
@@ -47,73 +64,11 @@ module.exports = {
         }
     },
 
-    // async recordSale(req, res) {
-    //     const { date, description, payment_method, products } = req.body;
-
-    //     try {
-    //         if (!Array.isArray(products) || products.length === 0) {
-    //             return res.status(400).send({
-    //                 status: 0,
-    //                 message: 'Lista de produtos inválida.',
-    //             });
-    //         }
-
-    //         // Itera sobre os produtos para processar cada um
-    //         for (const product of products) {
-    //             const { code, quantity, unit_price } = product;
-
-    //             console.log(product);
-    //             if (!code || !quantity || !unit_price) {
-    //                 return res.status(400).send({
-    //                     status: 0,
-    //                     message: 'Dados do produto inválidos.',
-    //                 });
-    //             }
-
-    //             // Verifica se o produto existe
-    //             const existingProduct = await Product.findByPk(code);
-
-    //             if (!existingProduct) {
-    //                 return res.status(404).send({
-    //                     status: 0,
-    //                     message: `Produto com ID ${code} não encontrado.`,
-    //                 });
-    //             }
-
-    //             // Diminui a quantidade do produto no estoque
-    //             // await productController.decreaseQuantity({ params: { code: existingProduct.code }, body: { quantity } });
-    //             await productController.decreaseQuantity(
-    //                 { body: { code: existingProduct.code, quantity } },
-    //                 res
-    //             );
-
-    //             // Registra a transação financeira
-    //             await Finance.create({
-    //                 date,
-    //                 description,
-    //                 value: unit_price * quantity, // Total da venda para o produto
-    //                 product_id: code,
-    //                 payment_method,
-    //                 quantity,
-    //             });
-    //         }
-
-    //         return res.status(201).send({
-    //             status: 1,
-    //             message: 'Venda registrada com sucesso!',
-    //         });
-    //     } catch (error) {
-    //         return res.status(500).send({
-    //             status: 0,
-    //             message: 'Erro ao registrar a venda',
-    //             error: error.message,
-    //         });
-
-    //     }
-    // }
-
-    async recordSale(req, res) {
-        const { date, description, payment_method, products, cash_register } = req.body;
+    // Função de venda
+    async recordSale(req, res) { 
+        const { date, payment_method, products, cash_register } = req.body;
+        const { user_id } = req.params;
+        const description = "Venda";
 
         try {
             if (!Array.isArray(products) || products.length === 0) {
@@ -124,6 +79,7 @@ module.exports = {
             }
             for (const product of products) {
                 const { code, quantity } = product;
+                console.log(code, "  ,  ", quantity);
 
                 if (!code || !quantity) {
                     return res.status(400).send({
@@ -132,7 +88,15 @@ module.exports = {
                     });
                 }
 
-                const existingProduct = await Product.findOne({ where: { code } });
+                const user = await User.findByPk(user_id);
+                const id_empresa = user.id_empresa;
+
+                const existingProduct = await Product.findOne({
+                    where: {
+                        code,
+                        id_empresa
+                    }
+                });
 
                 if (!existingProduct) {
                     return res.status(404).send({
@@ -141,12 +105,15 @@ module.exports = {
                     });
                 }
                 // Chama a função decreaseQuantity e captura o resultado
+
                 const result = await productController.decreaseQuantity({
                     body: { code: existingProduct.code, quantity }
                 });
                 if (result.status === 0) {
                     return res.status(400).send(result);
                 }
+
+                console.log(description);
                 // Registra a transação financeira
                 await Finance.create({
                     date,
@@ -155,7 +122,8 @@ module.exports = {
                     product_id: existingProduct.id,
                     payment_method,
                     quantity,
-                    cash_register
+                    cash_register,
+                    id_empresa
                 });
             }
 
@@ -172,9 +140,10 @@ module.exports = {
         }
     },
 
+    // Função para a equipe de dados: retorna as datas e o id da empresa para fazer um relatório 
     async show_sales(req, res) {
         try {
-            const {cash_register} = req.params;
+            const {cash_register, user_id} = req.params;
             const {start_date, end_date} = req.body;
             const caixa = await Finance.findOne({where:{cash_register}})
             console.log(cash_register)
@@ -186,9 +155,14 @@ module.exports = {
                     message: "Caixa não existe ou não resgistrou venda",
                 })
             }
+
+            const user = await User.findByPk(user_id);
+            const id_empresa = user.id_empresa;
+
             return res.status(200).send({
                 status: 1,
                 sales_over_date,
+                id_empresa
             })
 
         } catch (err) {
@@ -199,32 +173,15 @@ module.exports = {
             })
         }
     },
-    async index(req, res) {
-        try {
-            const finances = await Finance.findAll();
 
-            return res.status(200).send({
-                status: 1,
-                message: 'Finanças encontradas com sucesso!',
-                finances,
-            });
-
-        } catch (error) {
-            return res.status(500).send({
-                status: 0,
-                message: 'Erro ao buscar Finanças',
-                error: error.message,
-            });
-        }
-    },
-
+    // Função para a equipe de dados: retorna o número do caixa e a data atual para fazer um relatório de venda daquele caixa daquela data
     async closeCashRegister(req, res) {
 
-        const { registerNumber } = req.body; // Número do caixa 
+        const {cash_register, user_id} = req.params;
             
         try {
             // Verifica se o número do caixa foi fornecido
-            if (!registerNumber) {
+            if (!cash_register) {
                 return res.status(400).send({
                     status: 0,
                     message: 'Número do caixa não fornecido!',
@@ -233,13 +190,17 @@ module.exports = {
     
             // Obtém a data atual usando moment.js
             const currentDate = moment().format('YYYY-MM-DD HH:mm:ss');
+            // Obtém od id da empresa
+            const user = await User.findByPk(user_id);
+            const id_empresa = user.id_empresa;
     
             return res.status(200).send({
                 status: 1,
                 message: 'Fechamento de caixa realizado com sucesso!',
                 data: {
                     date: currentDate,
-                    registerNumber: registerNumber
+                    cash_register: cash_register,
+                    id_empresa
                 }
             });
     
@@ -252,9 +213,11 @@ module.exports = {
         }
     },
 
+    // Função para a equipe de dados: retorna as datas e o tipo de filtragem para fazer um relatório de venda
     async filterByDateRange(req, res) {
         try {
             const { startDate, endDate, filterType } = req.body;
+            const {user_id} = req.params;
     
             // Verifique se ambas as datas e o tipo de filtragem estão presentes
             if (!startDate || !endDate || !filterType) {
@@ -291,6 +254,10 @@ module.exports = {
                     message: 'Tipo de filtragem inválido. Use "fornecedor" ou "produto".',
                 });
             }
+
+            // Obtém od id da empresa
+            const user = await User.findByPk(user_id);
+            const id_empresa = user.id_empresa;
     
             // Se todas as validações passarem, retorne as datas e o tipo de filtragem
             return res.status(200).send({
@@ -299,12 +266,33 @@ module.exports = {
                 startDate: startDate,
                 endDate: endDate,
                 filterType: filterType,
+                id_empresa
             });
     
         } catch (error) {
             return res.status(500).send({
                 status: 0,
                 message: 'Erro ao processar datas e tipo de filtragem',
+                error: error.message,
+            });
+        }
+    },
+
+    // isso é somente para os desenvolvedores:
+    async index(req, res) {
+        try {
+            const finances = await Finance.findAll();
+
+            return res.status(200).send({
+                status: 1,
+                message: 'Finanças encontradas com sucesso!',
+                finances,
+            });
+
+        } catch (error) {
+            return res.status(500).send({
+                status: 0,
+                message: 'Erro ao buscar Finanças',
                 error: error.message,
             });
         }

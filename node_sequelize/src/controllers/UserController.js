@@ -12,6 +12,7 @@ function generateToken(params = {}) {
 }
 
 module.exports = {
+
   async login(req, res) {
     const { password, email } = req.body;
 
@@ -66,8 +67,15 @@ module.exports = {
 
   async index(req, res){
     try {
-      const users = await User.findAll({
-        attributes: { exclude: ["password"] }, // Exclui a senha da resposta
+
+      const { user_id } = req.params;
+      const id_empresa = user.id_empresa;
+
+      const users = await Product.findAll({
+          where: {
+              id_empresa
+          },
+          attributes: { exclude: ["password"] }  // Exclui a senha da resposta
       });
 
       if (!users || users.length === 0) {
@@ -86,9 +94,15 @@ module.exports = {
 
   async logout(req, res) {
     try {
+
       const { user_id } = req.params;
 
-      const user = await User.findOne({ where: { id: user_id } });
+      const user = await Product.findAll({
+        where: {
+            id_empresa,
+            id: user_id
+        }
+      });
 
       if (!user || user.length === 0) {
         return res.status(200).send({ message: "Usuário não cadastrado." });
@@ -128,6 +142,7 @@ module.exports = {
         cpf,
         phone,
         education,
+        id_empresa
       } = req.body;
 
       // Verifique se o CPF já existe
@@ -159,6 +174,7 @@ module.exports = {
         cpf,
         phone,
         education,
+        id_empresa
       });
 
       user.password = undefined; // Remova a senha da resposta
@@ -182,9 +198,14 @@ module.exports = {
     const { name, email, code, birthday_date, cpf, phone, education } = req.body; 
 
     const { user_id } = req.params; 
-
-    const user = await User.findByPk(user_id); 
-
+    
+    const user = await User.findOne({
+      where: {
+          user_id,
+          id_empresa
+      }
+    });
+  
     if (!user) { 
         return res.status(404).send({ 
             status: 0, 
@@ -225,61 +246,118 @@ module.exports = {
     } 
 }, 
 
-async delete(req, res) { 
-    try { 
+  async delete(req, res) { 
+      try { 
 
-        const { user_id } = req.params; 
- 
-        const user = await User.findOne({ where: {id: user_id} }); 
- 
-        if (!user) { 
-            return res.status(404).send({ 
-                status: 0, 
-                message: "Usuário não encontrado", 
-            }); 
-        } 
- 
-        await User.destroy({ where: { id: user_id } }); 
- 
-        return res.status(200).send({ 
-            status: 1, 
-            message: "Usuário deletado com sucesso!", 
-        }); 
- 
-    } catch (err) { 
-        return res.status(500).send({ 
-            status: 0, 
-            message: 'Erro interno do servidor.', 
-            error: err.message, 
-        }); 
-    } 
-},
+          const { user_id } = req.params; 
 
-async forgotPassword(req, res) {
-  const { cpf, birthday_date, newPassword } = req.body;
+          const user = await User.findOne({
+            where: {
+                id: user_id,
+                id_empresa
+            }
+          });
+  
+          if (!user) { 
+              return res.status(404).send({ 
+                  status: 0, 
+                  message: "Usuário não encontrado", 
+              }); 
+          } 
+  
+          await User.destroy({ where: { id: user_id } }); 
+  
+          return res.status(200).send({ 
+              status: 1, 
+              message: "Usuário deletado com sucesso!", 
+          }); 
+  
+      } catch (err) { 
+          return res.status(500).send({ 
+              status: 0, 
+              message: 'Erro interno do servidor.', 
+              error: err.message, 
+          }); 
+      } 
+  },
 
-    if (!cpf || !birthday_date || !newPassword) {
-        return res.status(400).send({
-            status: 0,
-            message: 'Dados de entrada incompletos!',
-        });
-    }
+  async forgotPassword(req, res) {
+
+    const { cpf, birthday_date, newPassword } = req.body;
+
+      if (!cpf || !birthday_date || !newPassword) {
+          return res.status(400).send({
+              status: 0,
+              message: 'Dados de entrada incompletos!',
+          });
+      }
+
+      try {
+          // Converte a data fornecida para o formato YYYY-MM-DD
+          const formattedBirthdayDate = new Date(birthday_date).toISOString().split('T')[0];
+
+          // Verifica se o usuário existe com o CPF 
+          const user = await User.findOne({
+              where: { cpf }
+          });
+
+          const dataformatada = new Date(user.birthday_date).toISOString().split('T')[0];
+
+          if (!user || formattedBirthdayDate!=dataformatada) {
+              return res.status(400).send({
+                  status: 0,
+                  message: 'CPF ou data de nascimento incorretos!',
+              });
+          }
+
+          // Atualiza a senha com criptografia
+          const salt = bcrypt.genSaltSync();
+          const hashedPassword = bcrypt.hashSync(newPassword, salt);
+
+          await User.update({ password: hashedPassword }, { where: { id: user.id } });
+
+          return res.status(200).send({
+              status: 1,
+              message: 'Senha redefinida com sucesso!',
+          });
+
+      } catch (err) {
+          return res.status(500).send({
+              status: 0,
+              message: 'Erro ao redefinir a senha.',
+              error: err.message,
+          });
+      }
+  },
+
+  async changePassword(req, res) {
+
+    const { email, oldPassword, newPassword } = req.body;
+
+    const { user_id } = req.params; 
+
+    const user = await User.findByPk(user_id);
+    const id_empresa = user.id_empresa;
+
+    console.log(email);
 
     try {
-        // Converte a data fornecida para o formato YYYY-MM-DD
-        const formattedBirthdayDate = new Date(birthday_date).toISOString().split('T')[0];
+        // Busca o usuário pelo email
 
-        // Verifica se o usuário existe com o CPF 
-        const user = await User.findOne({
-            where: { cpf }
-        });
+        console.log(user);
 
-        const dataformatada = new Date(user.birthday_date).toISOString().split('T')[0];
+        if (!user || user.email!=email) {
+            return res.status(404).send({
+                status: 0,
+                message: 'Usuário não encontrado!',
+            });
+        }
 
-        if (!user || formattedBirthdayDate!=dataformatada) {
+        // Verifica se a senha antiga está correta
+        if (!bcrypt.compareSync(oldPassword, user.password)) {
             return res.status(400).send({
                 status: 0,
-                message: 'CPF ou data de nascimento incorretos!',
+                message: 'Senha antiga incorreta!',
             });
         }
 
@@ -287,70 +365,20 @@ async forgotPassword(req, res) {
         const salt = bcrypt.genSaltSync();
         const hashedPassword = bcrypt.hashSync(newPassword, salt);
 
-        await User.update({ password: hashedPassword }, { where: { id: user.id } });
+        await User.update({ password: hashedPassword }, { where: { id: user.id, id_empresa } });
 
         return res.status(200).send({
             status: 1,
-            message: 'Senha redefinida com sucesso!',
+            message: 'Senha alterada com sucesso!',
         });
 
     } catch (err) {
         return res.status(500).send({
             status: 0,
-            message: 'Erro ao redefinir a senha.',
+            message: 'Erro ao alterar a senha.',
             error: err.message,
         });
     }
-},
-
-async changePassword(req, res) {
-
-  const { email, oldPassword, newPassword } = req.body;
-
-  const { user_id } = req.params; 
-
-  const user = await User.findByPk(user_id);
-
-  console.log(email);
-
-  try {
-      // Busca o usuário pelo email
-
-      console.log(user);
-
-      if (!user || user.email!=email) {
-          return res.status(404).send({
-              status: 0,
-              message: 'Usuário não encontrado!',
-          });
-      }
-
-      // Verifica se a senha antiga está correta
-      if (!bcrypt.compareSync(oldPassword, user.password)) {
-          return res.status(400).send({
-              status: 0,
-              message: 'Senha antiga incorreta!',
-          });
-      }
-
-      // Atualiza a senha com criptografia
-      const salt = bcrypt.genSaltSync();
-      const hashedPassword = bcrypt.hashSync(newPassword, salt);
-
-      await User.update({ password: hashedPassword }, { where: { id: user.id } });
-
-      return res.status(200).send({
-          status: 1,
-          message: 'Senha alterada com sucesso!',
-      });
-
-  } catch (err) {
-      return res.status(500).send({
-          status: 0,
-          message: 'Erro ao alterar a senha.',
-          error: err.message,
-      });
-  }
-},
+  },
 
 };

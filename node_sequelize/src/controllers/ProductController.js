@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const DeletedProduct = require('../models/DeletedProduct');
 
 const Sequelize = require('sequelize');
 const bcrypt = require('bcryptjs');
@@ -17,37 +18,19 @@ function generateToken(params = {}) {
 }
 
 module.exports = {
+
     // Função para cadastrar um novo produto
-    async store(productData,quantity,expiryDate,res,req) {
+    async store(productData,quantity,expiryDate, id_empresa, res,req) {
         try {
             const { name, unit_of_measure, purchase_price,sale_price, supplier, code } = productData;
-            // Verifique se o produto com o mesmo código já existe
-            // const existingProduct = await Product.findOne({ where: { code } });
-            // if (existingProduct) {
-            //     return res.status(400).send({
-            //         status: 0,
-            //         message: 'Código de produto já cadastrado.',
-            //     });
-            // }
 
             // Crie o novo produto
-            const product = await Product.create({ name, unit_of_measure, purchase_price, quantity_per_unit : quantity, sale_price, expiry_date: expiryDate, supplier, code });
+            const product = await Product.create({ name, unit_of_measure, purchase_price, quantity_per_unit : quantity, sale_price, expiry_date: expiryDate, supplier, code, id_empresa });
             const token = generateToken({ id: product.id });
 
-            // return res.status(200).send({
-            //     status: 1,
-            //     message: 'Produto cadastrado com sucesso!',
-            //     product,
-            //     token
-            // });
             return { status: 200, message: 'Produto cadastrado com sucesso!', product, token };
 
         } catch (error) {
-            // return res.status(500).send({
-            //     status: 0,
-            //     message: 'Erro ao cadastrar produto',
-            //     error: error.message,
-            // });
             return { status: 500, message: 'Erro ao cadastrar produto', error: error.message };
         }
     },
@@ -55,83 +38,102 @@ module.exports = {
     // Função para deletar um produto
     async delete(req, res) {
         try {
-          const { code } = req.params;
-          console.log("Código recebido:", code);
-      
-          // Verifique se o código do produto é válido
-          if (!code) {
-            return res.status(400).send({
-              status: 0,
-              message: 'Código do produto é obrigatório.',
-            });
-          }
-          
-          // Encontre o produto pelo código
-          const product = await Product.findOne({ where: { code } });
-          console.log("Produto encontrado:", product);
-            console.log("Dados para DeletedProduct:", {
-            name: product.name,
-            unit_of_measure: product.unit_of_measure,
-            purchase_price: product.purchase_price,
-            quantity_per_unit: product.quantity_per_unit,
-            sale_price: product.sale_price,
-            expiry_date: product.expiry_date,
-            supplier: product.supplier,
-            code: product.code,
-            deleted_at: new Date(),
- 
-          });
 
+            const { code, user_id } = req.params;
+            console.log("Código recebido:", code);
       
-          if (!product) {
-            return res.status(404).send({
-              status: 0,
-              message: 'Produto não encontrado.',
+            // Verificar se o código do produto é válido
+            if (!code) {
+            return res.status(400).send({
+                status: 0,
+                message: 'Código do produto é obrigatório.',
             });
-          }
-      
-          // Copie os dados para a tabela DeletedProducts
-          await DeletedProduct.create({
-            name: product.name,
-            unit_of_measure: product.unit_of_measure,
-            purchase_price: product.purchase_price,
-            quantity_per_unit: product.quantity_per_unit,
-            sale_price: product.sale_price,
-            expiry_date: product.expiry_date,
-            supplier: product.supplier,
-            code: product.code,
-            deleted_at: new Date()
-        });
+            }
+
+            const user = await User.findByPk(user_id);
+            const id_empresa = user.id_empresa;
+
+            const product  = await Product.findOne({
+                where: {
+                    code,
+                    id_empresa
+                }
+            });
+
+            console.log("Produto encontrado:", product);
+            console.log("Dados para DeletedProduct:", {
+                name: product.name,
+                unit_of_measure: product.unit_of_measure,
+                purchase_price: product.purchase_price,
+                quantity_per_unit: product.quantity_per_unit,
+                sale_price: product.sale_price,
+                expiry_date: product.expiry_date,
+                supplier: product.supplier,
+                code: product.code,
+                deleted_at: new Date(),
+            });
+
+        
+            if (!product) {
+                return res.status(404).send({
+                    status: 0,
+                    message: 'Produto não encontrado.',
+                });
+            }
+        
+            // Copiar os dados para a tabela DeletedProducts
+            await DeletedProduct.create({
+                name: product.name,
+                unit_of_measure: product.unit_of_measure,
+                purchase_price: product.purchase_price,
+                quantity_per_unit: product.quantity_per_unit,
+                sale_price: product.sale_price,
+                expiry_date: product.expiry_date,
+                supplier: product.supplier,
+                code: product.code,
+                id_empresa: id_empresa,
+                deleted_at: new Date()
+            });
     
           
-          // Deletar o produto da tabela original
-          //await product.destroy({ where: { code: code } });
-          await Product.destroy({ where: { code } });
-
-        //   await User.destroy({ where: { id: user_id } });
-      
-          return res.status(200).send({
-            status: 1,
-            message: 'Produto deletado com sucesso!',
-          });
+            // Deletar o produto da tabela original
+            await Product.destroy({
+                where: {
+                    code,
+                    id_empresa
+                }
+            });
+        
+            return res.status(200).send({
+                status: 1,
+                message: 'Produto deletado com sucesso!',
+            });
       
         } catch (error) {
-          console.error("Erro ao deletar produto:", error);
-          return res.status(500).send({
-            status: 0,
-            message: 'Erro ao deletar produto',
-            error: error.message,
-          });
+            console.error("Erro ao deletar produto:", error);
+            return res.status(500).send({
+                status: 0,
+                message: 'Erro ao deletar produto',
+                error: error.message,
+            });
         }
-      },
+    },
 
     // Função para atualizar um produto
     async update(req, res) {
         try {
-            const { code } = req.params;
+            const { code, user_id } = req.params;
             const { name, unit_of_measure, purchase_price, quantity_per_unit, sale_price, expiry_date, supplier } = req.body;
 
-            const product = await Product.findOne({ where: { code } });
+            const user = await User.findByPk(user_id);
+            const id_empresa = user.id_empresa;
+
+            const product  = await Product.findOne({
+                where: {
+                    code,
+                    id_empresa
+                }
+            });
 
             if (!product) {
                 return res.status(404).send({
@@ -159,7 +161,16 @@ module.exports = {
     // Função para ver todos os produtos
     async index(req, res) {
         try {
-            const products = await Product.findAll();
+            const { user_id } = req.params;
+
+            const user = await User.findByPk(user_id);
+            const id_empresa = user.id_empresa;
+
+            const products = await Product.findAll({
+                where: {
+                    id_empresa
+                }
+            });
 
             return res.status(200).send({
                 status: 1,
@@ -176,9 +187,11 @@ module.exports = {
         }
     },
 
+    // Função para decrementar um produto
     async decreaseQuantity(req) {
         try {
             const { code, quantity } = req.body;
+            const { user_id } = req.params;
 
             if (!quantity || quantity <= 0) {
                 return {
@@ -187,7 +200,15 @@ module.exports = {
                 };
             }
 
-            const product = await Product.findOne({ where: { code } });
+            const user = await User.findByPk(user_id);
+            const id_empresa = user.id_empresa;
+
+            const product  = await Product.findOne({
+                where: {
+                    code,
+                    id_empresa
+                }
+            });
 
             if (!product) {
                 return {
@@ -223,7 +244,10 @@ module.exports = {
     // Função para aumentar a quantidade de um produto
     // A quantidade digitada será adionada a quantidade atual no estoque
     async increaseQuantity(code,quantity,res) {
+
         try {
+            const { user_id } = req.params;
+
             if (!quantity || quantity <= 0) {
                 return res.status(400).send({
                     status: 0,
@@ -231,7 +255,16 @@ module.exports = {
                 });
             }
 
-            const product = await Product.findOne({ where: { code } });
+            const user = await User.findByPk(user_id);
+            const id_empresa = user.id_empresa;
+
+            const product  = await Product.findOne({
+                where: {
+                    code,
+                    id_empresa
+                }
+            });
+
             if (!product) {
                 return res.status(404).send({
                     status: 0,
@@ -257,9 +290,11 @@ module.exports = {
         }
     },
 
+    // Função para pesquisar um produto pelo nome
     async searchByName(req, res) {
         try {
             const { name } = req.body;
+            const { user_id } = req.params;
 
             if (!name) {
                 return res.status(400).send({
@@ -268,8 +303,15 @@ module.exports = {
                 });
             }
 
-            // Pesquisar o produto pelo nome
-            const product = await Product.findOne({ where: { name } });
+            const user = await User.findByPk(user_id);
+            const id_empresa = user.id_empresa;
+
+            const product  = await Product.findOne({
+                where: {
+                    name,
+                    id_empresa
+                }
+            });
 
             if (!product) {
                 return res.status(404).send({
@@ -293,6 +335,7 @@ module.exports = {
         }
     },
 
+    // Função para a equipe de dados: retorna a data inicial, data final e o id_empresa para filtragem dos produtos mais vendidos
     async checkDateRange(req, res) {
         try {
             const { startDate, endDate } = req.body;
@@ -330,6 +373,7 @@ module.exports = {
                 message: 'Datas recebidas com sucesso!',
                 startDate: startDate,
                 endDate: endDate,
+                id_empresa
             });
     
         } catch (error) {
@@ -341,6 +385,7 @@ module.exports = {
         }
     },
 
+    // Função para a equipe de dados: retorna a data inicial, data final e o id_empresa para filtragem dos produtos que irão vencer
     async getExpiringProducts(req, res) {
         try {
             const { days } = req.body;
