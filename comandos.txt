@@ -1,7 +1,7 @@
 -> npm run dev
 Usado para rodar o servidor
 
--> sequelize migration:create --name=create-users
+-> sequelize migration:create --name=add_endereço_in_company
 Usado para criar um novo arquivo de migração no Sequelize CLI ("create-users" seria o nome)
 
 -> npx sequelize db:migrate

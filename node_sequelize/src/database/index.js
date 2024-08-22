@@ -21,4 +21,6 @@ Category.init(connection);
 Product.associate(connection.models)
 Address.associate(connection.models);
 User.associate(connection.models);
+Finance.associate(connection.models);
+Company.associate(connection.models);
 module.exports = connection;

@@ -11,7 +11,7 @@ class Product extends Model {
             expiry_date: DataTypes.DATE,  // data de validade - 20/05/2025
             supplier: DataTypes.STRING, // fornecedor - danone
             code: DataTypes.INTEGER  // código - 0526
-            
+
         }, {
             sequelize,
         });
@@ -25,7 +25,7 @@ class Product extends Model {
 
 module.exports = Product;
 
- /*nome do produto
+/*nome do produto
 preço
 peso
 quantidade
