@@ -19,7 +19,7 @@ module.exports = {
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
-      })
+      }),
       // queryInterface.addColumn('company', 'addresses_id', {
       //   type: Sequelize.INTEGER,
       //   allowNull: false,

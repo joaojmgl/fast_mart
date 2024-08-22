@@ -18,8 +18,9 @@ class Product extends Model {
     }
 
     static associate(models) {
-        // Definir associações, se necessário no futuro
-        // Exemplo: this.belongsTo(models.Category, { foreignKey: 'category_id', as: 'category' });
+
+        this.hasOne(models.company, { foreignKey: 'company_id', as: 'company' });
+
     }
 }
 

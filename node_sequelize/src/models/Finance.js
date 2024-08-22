@@ -43,6 +43,7 @@ class Finance extends Model {
 
     static associate(models) {
         this.belongsTo(models.Product, { foreignKey: 'product_id', as: 'product' });
+        this.hasOne(models.company, { foreignKey: 'company_id', as: 'company' });
     }
 }
 

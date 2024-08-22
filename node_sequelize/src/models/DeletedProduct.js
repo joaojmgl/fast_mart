@@ -18,6 +18,9 @@ class DeletedProduct extends Model {
       timestamps: false, // Desativa as colunas created_at e updated_at
     });
   }
+  static associate(models) {
+    this.hasOne(models.company, { foreignKey: 'company_id', as: 'company' });
+  }
 }
 
 module.exports = DeletedProduct;
