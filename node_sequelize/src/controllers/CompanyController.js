@@ -58,8 +58,8 @@ module.exports = {
             const new_company = await Company.create({
                 comp_name,
                 comp_cnpj,
-                addresses_id,
                 comp_employees,
+                addresses_id: comp_address.id
             });
             return res.status(201).json(new_company);
         } catch (err) {
