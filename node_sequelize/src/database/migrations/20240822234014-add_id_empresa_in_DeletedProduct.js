@@ -21,13 +21,13 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       }),
-      // queryInterface.addColumn('DeletedProduct', 'id', {
-      //   type: Sequelize.INTEGER,
-      //   primaryKey:true,
-      //   autoIncrement: true,
-      //   allowNull: false
-      //   // Aqui você pode definir o comportamento desejado da nova coluna
-      // }),
+      queryInterface.addColumn('DeletedProduct', 'id', {
+        type: Sequelize.INTEGER,
+        primaryKey:true,
+        autoIncrement: true,
+        allowNull: false
+        // Aqui você pode definir o comportamento desejado da nova coluna
+      }),
       queryInterface.addConstraint('DeletedProduct', {
         fields: ['id', 'id_empresa'],
         type: 'unique',
