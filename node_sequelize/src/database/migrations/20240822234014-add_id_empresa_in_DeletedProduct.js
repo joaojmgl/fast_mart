@@ -40,8 +40,8 @@ module.exports = {
     return Promise.all([
       // queryInterface.removeConstraint('DeletedProduct', 'id_empresa'),
       // queryInterface.removeConstraint('DeletedProduct', 'id_composta'),
-      // queryInterface.removeColumn('DeletedProduct', 'id_empresa'),
-      // queryInterface.removeColumn('DeletedProduct', 'id'),
+      queryInterface.removeColumn('DeletedProduct', 'id_empresa'),
+      queryInterface.removeColumn('DeletedProduct', 'id'),
     ])
   }
 };
