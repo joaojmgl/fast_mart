@@ -60,10 +60,14 @@ module.exports = {
             });
             console.log(new_company.id)
             const comp_address = await Address.create({
-                address,
+                street: address.street,
+                number: address.number,
+                district: address.district,
+                city: address.city,
+                state: address.state,
                 company_id : new_company.id,
             })
-            return res.status(201).json(new_company);
+            return res.status(201).json(comp_address);
         } catch (err) {
             console.log(err);
             return res.status(500).json({error: "Internal serve error."});

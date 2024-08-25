@@ -7,17 +7,6 @@
     <list default="true" id="6a5a76ac-1a5e-4b20-88ca-6e9f502bf7aa" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/node_sequelize/src/controllers/CompanyController.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/controllers/CompanyController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/database/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/database/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240822010821-add_id_empresa_in_users.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240822010821-add_id_empresa_in_users.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240822234014-add_id_empresa_in_DeletedProduct.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240822234014-add_id_empresa_in_DeletedProduct.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/models/Address.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/models/Address.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/models/Category.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/models/Company.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/models/Company.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/models/DeletedProduct.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/models/DeletedProduct.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/models/Finance.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/models/Finance.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/models/Product.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/models/Product.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/models/User.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/models/User.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/routes.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,6 +14,11 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="joaojmgl" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectColorInfo">{
