@@ -5,11 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6a5a76ac-1a5e-4b20-88ca-6e9f502bf7aa" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/config/database.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/config/database.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240802235120-add_functions_finances.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240803215551-add_tipoPagamento_finance.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240816154409-add_addresses_id_company.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240816154409-add_addresses_id_company.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240818143739-add_caixa_in_finance.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/controllers/CompanyController.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/controllers/CompanyController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/database/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/database/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240822010821-add_id_empresa_in_users.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240822010821-add_id_empresa_in_users.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240822234014-add_id_empresa_in_DeletedProduct.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240822234014-add_id_empresa_in_DeletedProduct.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/models/Address.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/models/Address.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/models/Category.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/models/Company.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/models/Company.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/models/DeletedProduct.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/models/DeletedProduct.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/models/Finance.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/models/Finance.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/models/Product.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/models/Product.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/models/User.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/models/User.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/routes.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,6 +85,10 @@
       <workItem from="1724207015845" duration="510000" />
       <workItem from="1724343692441" duration="6909000" />
       <workItem from="1724353263259" duration="885000" />
+      <workItem from="1724537601817" duration="4824000" />
+      <workItem from="1724614307764" duration="7704000" />
+      <workItem from="1724622049819" duration="1280000" />
+      <workItem from="1724623359431" duration="1932000" />
     </task>
     <servers />
   </component>

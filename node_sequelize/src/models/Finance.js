@@ -34,6 +34,10 @@ class Finance extends Model {
             payment_method: {
                 type: DataTypes.ENUM('Cartão de credito', 'Dinheiro', 'Cartão de débito', 'Pix'),
                 allowNull: false
+            },
+            cash_register:{
+              type: DataTypes.INTEGER,
+              allowNull: true,
             }
         }, {
             sequelize,
@@ -42,8 +46,8 @@ class Finance extends Model {
     }
 
     static associate(models) {
-        this.belongsTo(models.Product, { foreignKey: 'product_id', as: 'product' });
-        this.hasOne(models.company, { foreignKey: 'company_id', as: 'company' });
+        this.belongsTo(models.Product, { foreignKey: 'product_id', as: 'products' });
+        this.belongsTo(models.companies, { foreignKey: 'company_id', as: 'companies' });
     }
 }
 

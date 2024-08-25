@@ -19,7 +19,7 @@ class DeletedProduct extends Model {
     });
   }
   static associate(models) {
-    this.hasOne(models.company, { foreignKey: 'company_id', as: 'company' });
+      this.belongsTo(models.companies, { foreignKey: 'company_id', as: 'companies' });
   }
 }
 

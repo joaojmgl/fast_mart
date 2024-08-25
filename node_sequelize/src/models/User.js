@@ -14,6 +14,8 @@ class User extends Model {
             phone: DataTypes.STRING,
             education: DataTypes.STRING,
             is_logged: DataTypes.BOOLEAN,
+            users_pkey: DataTypes.INTEGER
+
 
         }, {
             sequelize,
@@ -27,8 +29,9 @@ class User extends Model {
     }
 
     static associate(models) {
-        this.hasMany(models.Address, { foreignKey: 'user_id', as: 'address' });
-        this.hasOne(models.company, { foreignKey: 'company_id', as: 'company' });
+        // this.hasMany(models.Address, { foreignKey: 'user_id', as: 'address' });
+        this.belongsTo(models.companies, { foreignKey: 'company_id', as: 'companies' });
+
     }
 
 }

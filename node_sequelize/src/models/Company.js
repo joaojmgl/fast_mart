@@ -1,6 +1,6 @@
 const { Model, DataTypes } = require('sequelize');
 
-class company extends Model {
+class companies extends Model {
     static init(sequelize) {
         super.init({
             comp_name: DataTypes.STRING,
@@ -8,14 +8,17 @@ class company extends Model {
             comp_employees: DataTypes.STRING,
 
         }, {
-            freezeTableName:true,
             sequelize,
         })
     }
 
     static associate(models){
-        this.belongsTo(models.Address, { foreignKey: 'addresses_id', as: 'address' });
+        // this.hasMany(models.Address, { foreignKey: 'company_id', as: 'address' });
+        // this.hasMany(models.DeletedProducts, { foreignKey: 'company_id', as: 'DeletedProducts' });
+        // this.hasMany(models.Finance, { foreignKey: 'company_id', as: 'Finance' });
+        // this.hasMany(models.Product, { foreignKey: 'company_id', as: 'Product' });
+        // this.hasMany(models.User, { foreignKey: 'company_id', as: 'User' });
     }
 }
 
-module.exports = company;
+module.exports = companies;

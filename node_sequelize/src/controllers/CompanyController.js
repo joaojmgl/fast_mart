@@ -46,21 +46,23 @@ module.exports = {
 
     async store(req, res) {
         try {
-            const {comp_name, comp_cnpj, comp_employees,address} = req.body;
-            const company = await Company.findOne({where:{comp_cnpj}})
+            const {comp_name,comp_cnpj,comp_employees,address} = req.body;
 
+            const company = await Company.findOne({where:{comp_cnpj}})
+            console.log("erro")
             // if (company) {
             //     return res.status(422).json({message: `Company ${company_name} already exists.`})
             // }
-            const comp_address = await Address.create(address)
-            const addresses_id = comp_address.id
-            console.log(addresses_id)
             const new_company = await Company.create({
                 comp_name,
                 comp_cnpj,
                 comp_employees,
-                addresses_id: comp_address.id
             });
+            console.log(new_company.id)
+            const comp_address = await Address.create({
+                address,
+                company_id : new_company.id,
+            })
             return res.status(201).json(new_company);
         } catch (err) {
             console.log(err);

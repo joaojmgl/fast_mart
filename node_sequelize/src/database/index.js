@@ -7,7 +7,6 @@ const Address = require('../models/Address');
 const Company = require('../models/Company');
 const Finance = require('../models/Finance');
 const Product = require('../models/Product');
-const Category = require('../models/Category');
 const DeletedProduct = require('../models/DeletedProduct');
 
 const connection = new Sequelize(dbConfig);
@@ -17,7 +16,6 @@ Address.init(connection);
 Company.init(connection);
 Finance.init(connection);
 Product.init(connection);
-Category.init(connection);
 DeletedProduct.init(connection);
 
 Product.associate(connection.models)
