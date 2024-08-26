@@ -17,9 +17,9 @@ router.post('/users/login', UserController.login);
 
 //Company
 router.get('/companys', CompanyController.index);
-// router.get('/companys/:company_id', CompanyController.show);
+router.get('/companys/:company_id', CompanyController.show);
 router.post('/companys', CompanyController.store);
-// router.put('/companys/:company_id', CompanyController.update);
+router.put('/companys/:company_id', CompanyController.update);
 
 // ==============================================================================
 // A partir daqui as funções precisarão do token:

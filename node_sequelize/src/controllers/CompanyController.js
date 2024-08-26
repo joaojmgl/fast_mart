@@ -74,44 +74,58 @@ module.exports = {
         }
     },
     async update(req, res) {
-
-        const {company_name, comp_cnpj, comp_employees,comp_address} = req.body;
-        const {comp_id} = req.params;
-        const comp = await Company.findByPk(comp_id);
-        const {address_id} = comp_address.id
-        const address = await Address.update(comp_address,{
-            where:{id:address_id}
-            }
-        )
-        if (!comp) {
-            return res.status(404).send({
-                status: 0,
-                message: 'Empresa não encontrada.',
-            });
-        }
-
         try {
-
-            let updateData = {company_name, comp_cnpj, comp_employees,addresses_id:address_id};
-
-            try {
-                await Company.update(updateData, {
-                    where: {
-                        id: comp_id
-                    }
+            const {company_name, comp_cnpj, comp_employees,address} = req.body;
+            const comp_id = req.params;
+            console.log(comp_id)
+            const comp = await Company.findOne({where:{id:comp_id}})
+            console.log("erro")
+            if (! comp) {
+                return res.status(404).send({
+                    status: 0,
+                    message: 'Empresa não encontrada.',
                 });
+            }
+            let updateData = {company_name, comp_cnpj, comp_employees};
+            let updateData_eddress = {
+                street: address.street,
+                number: address.number,
+                district: address.district,
+                city: address.city,
+                state: address.state,
+                // company_id: comp_id,
+            }
+                try {
+                    await Company.update(updateData, {
+                        where: {
+                            id: comp_id
+                        }
+                    });
+                } catch (err) {
+                    return res.status(502).send({
+                        status: 0,
+                        message: "Erro ao atualizar empresa.",
+                        error: err.message
+                    });
+                }
+            try {
+                // await Address.update(updateData_eddress, {
+                //     where: {
+                //         id: comp_id
+                //     }
+                // });
             } catch (err) {
                 return res.status(502).send({
                     status: 0,
-                    message: "Erro ao atualizar empresa.",
+                    message: "Erro ao atualizar edereço da empresa.",
                     error: err.message
                 });
             }
 
-            return res.status(200).send({
-                status: 1,
-                message: "Empresa atualizado com sucesso!",
-            });
+                return res.status(200).send({
+                    status: 1,
+                    message: "Empresa atualizado com sucesso!",
+                });
 
         } catch (err) {
             return res.status(500).send({

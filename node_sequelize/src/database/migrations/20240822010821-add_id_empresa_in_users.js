@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    return Promise.all([
+    // return Promise.all([
 
        // queryInterface.removeColumn('users', 'id'),
        // queryInterface.addColumn('users', 'id_empresa', {
@@ -39,9 +39,9 @@ module.exports = {
 
   async down (queryInterface, Sequelize) {
     return Promise.all([
-      queryInterface.removeColumn('users', 'id_empresa'),
+      // queryInterface.removeColumn('users', 'id_empresa'),
       // queryInterface.removeConstraint('users', 'id_empresa'),
-      queryInterface.removeColumn('users', 'id'),
+      // queryInterface.removeColumn('users', 'id'),
       // queryInterface.removeConstraint('users', 'id_composta')
     ])
   }
