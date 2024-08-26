@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6a5a76ac-1a5e-4b20-88ca-6e9f502bf7aa" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/controllers/CompanyController.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/controllers/CompanyController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240822232823-add_id_empresa_in_finance.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240822232823-add_id_empresa_in_finance.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_sequelize/src/routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/routes.js" afterDir="false" />
-    </list>
+    <list default="true" id="6a5a76ac-1a5e-4b20-88ca-6e9f502bf7aa" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
