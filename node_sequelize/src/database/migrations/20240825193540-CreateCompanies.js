@@ -14,13 +14,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      comp_CNPJ:{
+      comp_cnpj:{
         type: Sequelize.STRING,
         allowNull: false,
-      },
-      comp_address:{
-        type: Sequelize.STRING,
-        allowNull: false,
+        unique: true,
       },
       comp_employees:{
         type: Sequelize.INTEGER,

@@ -40,6 +40,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+      description: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       company_id: { // Campo que armazena o ID do usuário associado a este endereço
         type: Sequelize.INTEGER, // Tipo de dado do campo: inteiro
         allowNull: false, // Não permite valores nulos (deve ser sempre preenchido)

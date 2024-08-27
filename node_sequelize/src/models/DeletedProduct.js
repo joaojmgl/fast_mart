@@ -11,6 +11,8 @@ class DeletedProduct extends Model {
       expiry_date: DataTypes.DATE,
       supplier: DataTypes.STRING,
       code: DataTypes.INTEGER,
+      company_id: DataTypes.INTEGER,
+      description: DataTypes.STRING,
       deleted_at: DataTypes.DATE,
     }, {
       sequelize,

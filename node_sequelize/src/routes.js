@@ -3,23 +3,25 @@ const express = require('express'); // Importando o módulo 'express', um framew
 
 const router = express.Router(); // Criando uma instância do roteador do Express.
 
-const UserController = require('./controllers/UserController'); // Importando o UserController
-const ProductController = require('./controllers/ProductController'); // Importando o ProductController
+const UserController = require('./controllers/UserController'); 
+const ProductController = require('./controllers/ProductController'); 
 const CompanyController =  require('./controllers/CompanyController');
 const FinanceController = require('./controllers/FinanceController');
 const authMiddleware = require('./middlewares/auth');
 
 module.exports = router; // Exportando o roteador para que possa ser utilizado em outros arquivos do projeto.
 
-// Usuários
+//   ==  User   ==   //
 router.post('/users', UserController.store);
-router.post('/users/login', UserController.login);
+router.post('/users/login/:company_id', UserController.login);
 
-//Company
+//   ==  Company   ==   //
 router.get('/companys', CompanyController.index);
 router.get('/companys/:company_id', CompanyController.show);
 router.post('/companys', CompanyController.store);
 router.put('/companys/:company_id', CompanyController.update);
+router.get('/companys/:company_id/employees', CompanyController.listEmployeesByCompany);
+
 
 // ==============================================================================
 // A partir daqui as funções precisarão do token:
@@ -27,36 +29,38 @@ router.put('/companys/:company_id', CompanyController.update);
 // ==============================================================================
 
 
-// Usuários
-router.get('/users', UserController.index); // Definindo as rotas que irão chamar o método index do UserController
-router.put('/users/:user_id', UserController.update);
-router.post('/users/logout/:user_id', UserController.logout);
-router.delete('/users/:user_id', UserController.delete);
-router.post('/users/forgot', UserController.forgotPassword);
-router.put('/users/change/:user_id', UserController.changePassword);
+//   ==  User   ==   //
+router.get('/users/:user_id/:company_id', UserController.index); 
+router.put('/users/:user_id/:company_id', UserController.update);
+router.post('/users/logout/:user_id/:company_id', UserController.logout);
+router.delete('/users/:user_id/:company_id', UserController.delete);
+router.post('/users/forgot/:company_id', UserController.forgotPassword);
+router.put('/users/change/:user_id/:company_id', UserController.changePassword);
+
+//   ==  Product   ==   //
+// Funções externas:
+router.delete('/products/:code/:company_id', ProductController.delete);
+router.put('/products/:code/:company_id', ProductController.update);
+router.get('/products/:company_id', ProductController.index);
+router.post('/products/get-expiring-products/:company_id', ProductController.getExpiringProducts); 
+router.get('/products/search/:company_id', ProductController.searchByName);
+router.post('/products/check-date-range/:company_id', ProductController.checkDateRange); // se necessário (análise dados)
+router.post('/products/decrease-quantity/:code/:company_id', ProductController.deleteQuantity);
+
+// Funções internas:
+// router.put('/products/decrease/:code', ProductController.decreaseQuantity);
+// router.put('/products/increase/:code', ProductController.increaseQuantity);
+// router.post('/products', ProductController.store); 
 
 
-// Produtos
-router.delete('/products/:code', ProductController.delete);
-router.put('/products/:code', ProductController.update);
-router.get('/products', ProductController.index);
-router.put('/products/decrease/:code', ProductController.decreaseQuantity);
-router.put('/products/increase/:code', ProductController.increaseQuantity);
-router.post('/products', ProductController.store);
-router.post('/check-date-range', ProductController.checkDateRange);
-router.post('/get-expiring-products', ProductController.getExpiringProducts);
-// router.put('/products/decrease', ProductController.decreaseQuantity);
-// router.get('/products/search', ProductController.searchByName);
-
-
-// Financias
-router.post('/finances', FinanceController.store);
-router.get('/finances', FinanceController.index);
-router.post('/finances/close_cash', FinanceController.closeCashRegister);
-router.post('/finances/filter_by_date_range', FinanceController.filterByDateRange);
-router.post('/finances/:cash_register', FinanceController.show_sales);  
-router.post('/sales', FinanceController.recordSale );
-
+//   ==  Finance   ==   //
+router.post('/finances/:company_id', FinanceController.store);
+router.get('/finances/:company_id', FinanceController.index);
+router.post('/finances/close_cash/:company_id', FinanceController.closeCashRegister);
+router.post('/finances/filter_by_date_range/:company_id', FinanceController.filterByDateRange);
+router.post('/finances/:cash_register/:company_id', FinanceController.show_sales);
+router.post('/finances/sales/:company_id', FinanceController.recordSale );
+router.delete('/finances/cancel-sale/:company_id', FinanceController.cancelSale);
 
 router.get('/', (request, response) => {
     return response.send("Servidor rodando :)"); // Respondendo à requisição GET na rota raiz com uma mensagem "Servidor rodando :)".

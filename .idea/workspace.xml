@@ -4,7 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6a5a76ac-1a5e-4b20-88ca-6e9f502bf7aa" name="Changes" comment="" />
+    <list default="true" id="6a5a76ac-1a5e-4b20-88ca-6e9f502bf7aa" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/controllers/CompanyController.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/controllers/CompanyController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/controllers/FinanceController.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/controllers/FinanceController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/controllers/ProductController.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/controllers/ProductController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/controllers/UserController.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/controllers/UserController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240825193540-CreateCompanies.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240825193540-CreateCompanies.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240825194014-CreateUsers.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240825194014-CreateUsers.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240825195446-deletedProducts.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/database/migrations/20240825195446-deletedProducts.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/models/DeletedProduct.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/models/DeletedProduct.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/models/User.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/models/User.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_sequelize/src/routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/node_sequelize/src/routes.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -30,7 +42,7 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;maryjuanna&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/jmgl/Downloads/fast_mart-joaojmgl(1)&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/jmgl/Downloads/27-08_novo&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -80,6 +92,8 @@
       <workItem from="1724614307764" duration="7704000" />
       <workItem from="1724622049819" duration="1280000" />
       <workItem from="1724623359431" duration="1932000" />
+      <workItem from="1724673342991" duration="11693000" />
+      <workItem from="1724800036610" duration="1494000" />
     </task>
     <servers />
   </component>

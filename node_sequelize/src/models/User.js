@@ -4,7 +4,6 @@ const bcrypt = require('bcryptjs');
 class User extends Model {
     static init(sequelize) {
         super.init({
-
             name: DataTypes.STRING,
             password: DataTypes.STRING,
             email: DataTypes.STRING,
@@ -14,9 +13,7 @@ class User extends Model {
             phone: DataTypes.STRING,
             education: DataTypes.STRING,
             is_logged: DataTypes.BOOLEAN,
-            users_pkey: DataTypes.INTEGER
-
-
+            company_id: DataTypes.INTEGER // Inclua isto se a associação for necessária
         }, {
             sequelize,
             hooks: {
@@ -25,15 +22,12 @@ class User extends Model {
                     user.password = bcrypt.hashSync(user.password, salt);
                 },
             },
-        })
+        });
     }
 
     static associate(models) {
-        // this.hasMany(models.Address, { foreignKey: 'user_id', as: 'address' });
-        this.belongsTo(models.companies, { foreignKey: 'company_id', as: 'companies' });
-
+        this.belongsTo(models.companies, { foreignKey: 'company_id', as: 'company' });
     }
-
 }
 
 module.exports = User;
