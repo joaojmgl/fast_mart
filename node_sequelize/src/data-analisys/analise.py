@@ -23,15 +23,11 @@ conexao.close()
 
 df['lucro'] = df['sale_price'] - df['purchase_price']
 produtos_mais_lucrativos = df.sort_values(by='lucro', ascending=False)
-print("10 Produtos que dão mais lucro:")
-print(produtos_mais_lucrativos[['name', 'purchase_price', 'sale_price', 'lucro']][:10])
 
 # produtos com a maior margem de lucro percentual:
 
 df['perc_lucro'] = ((df['sale_price'] - df['purchase_price']) / df['purchase_price']) * 100
 maior_perc_lucro = df.sort_values(by='perc_lucro', ascending= False)
-print("\n10 Produtos com maior percentual de lucro:")
-print(maior_perc_lucro[['name', 'purchase_price', 'sale_price', 'perc_lucro']][:10])
 
 # produtos mais proximos da data de validade:
 
@@ -41,39 +37,47 @@ df_future = df[df['expiry_date'] > today]
 df_sorted = df_future.sort_values(by='expiry_date')
 top_products = df_sorted.head(10)
 
-print("\n10 Produtos mais proximos da validade:")
-print(top_products[['name', 'expiry_date', 'in_stock']])
-
 # Produtos por fornecedor:
 
 produtos_por_forncedor = df.groupby('supplier')['name'].apply(lambda x: '\n    '.join(x)).reset_index(name='products')
 fornecedores = produtos_por_forncedor['supplier'].tolist()
-print('\nProdutos por fornecedor:')
-for _, row in produtos_por_forncedor.iterrows():
-    print(f"{row['supplier']}:")
-    print(f"    {row['products']}")
-    print()
-    
-    
-    
+
+#produtos em menor quantidade no estoque:
+
+menor_estoque = df.sort_values(by='quantity_per_unit', ascending= True)
+   
 # ----- daqui pra cima, adicionar mais insights
 # ----- daqui pra baixo, criação do dashboard
 
 # Criação do dashboard Streamlit
 st.title('Dashboard Fastmart')
 
-st.header('10 Produtos que Dão Mais Lucro:')
-st.bar_chart(df.sort_values(by='lucro', ascending=False).head(10).set_index('name')['lucro'])
+# Criação de colunas com espaçamento
+col1, spacer, col2 = st.columns([1, 0.23, 1])
 
-st.header('10 Produtos com Maior Percentual de Lucro:')
-st.bar_chart(df.sort_values(by='perc_lucro', ascending=False).head(10).set_index('name')['perc_lucro'])
+with col1:
+    st.header('10 Produtos mais lucrativos')
+    st.bar_chart(produtos_mais_lucrativos.head(10).set_index('name')['lucro'])
 
-st.header('10 Produtos Mais Próximos da Validade:')
-st.dataframe(top_products[['name', 'expiry_date', 'in_stock']])
+with col2:
+    st.header('10 Produtos com Maior margem percentual de lucro:')
+    st.bar_chart(maior_perc_lucro.head(10).set_index('name')['perc_lucro'])
 
-st.header('Produtos por Fornecedor:')
-fornecedor_selecionado = st.selectbox('Selecione o fornecedor:', fornecedores)
+# Outra linha de colunas com espaçamento
+col3, spacer, col4 = st.columns([1, 0.23, 1])
 
-# Filtra os produtos pelo fornecedor selecionado
-produtos_fornecedor_selecionado = df[df['supplier'] == fornecedor_selecionado]
-st.dataframe(produtos_fornecedor_selecionado[['name', 'sale_price', 'purchase_price', 'in_stock', 'expiry_date']])
+with col3:
+    st.header('10 Produtos Mais Próximos da Validade:')
+    st.dataframe(top_products[['name', 'expiry_date', 'quantity_per_unit']], hide_index=True, use_container_width= True)
+
+with col4:
+    st.header('Produtos por Fornecedor:')
+    fornecedor_selecionado = st.selectbox('Selecione o fornecedor:', fornecedores)
+    produtos_fornecedor_selecionado = df[df['supplier'] == fornecedor_selecionado]
+    st.dataframe(produtos_fornecedor_selecionado[['name', 'sale_price', 'purchase_price', 'quantity_per_unit', 'expiry_date']], hide_index= True, use_container_width= True)
+    
+col5, spacer, col6 = st.columns([1, 0.23, 1])
+
+with col5:
+    st.header('10 produtos em menor quantidade no estoque:')
+    st.dataframe(menor_estoque.head(10)[['name', 'quantity_per_unit']], hide_index=True, use_container_width= True)
