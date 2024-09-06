@@ -1,19 +1,18 @@
 import mysql.connector
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
 
 # Conectar ao banco de dados:
 conexao = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="123456",
-    database="fastmart",
+    host="localhost", # ip do banco
+    user="root", # usuario
+    password="123456", # senha
+    database="fastmart", # nome do banco
     charset="utf8mb4",  
     collation="utf8mb4_unicode_ci"
 )
 
-# Ler dados da tabela produtos
+# Lendo dados da tabela produtos
 query = "SELECT * FROM products"
 df_products = pd.read_sql(query, conexao)
 
@@ -53,6 +52,8 @@ comprados_por_mais = df_products.sort_values(by = 'purchase_price', ascending= F
 
 # insights da tabela finances: --------------------
 
+#Lendo a tabela finance
+
 query_fin = "SELECT * FROM finance"
 df_finances = pd.read_sql(query_fin, conexao)
 conexao.close()
@@ -70,7 +71,7 @@ total_compras = compras['value'].sum()
 select_compra_venda = df_finances['description'].tolist()[:2]
 
 
- # Operações por metodo de pagamento
+# Operações por metodo de pagamento
  
 select_payment_method = df_finances['payment_method'].tolist()[:4]
 
@@ -91,26 +92,23 @@ total_deb = deb['value'].sum()
 agrupa_pmm = df_finances.groupby(['payment_method']).size()
 
    
-# ----- daqui pra cima, adicionar mais insights
+# ----- daqui pra cima, insights
 
 # ----- daqui pra baixo, criação do dashboard
-
-import streamlit as st
 
 st.title('Dashboard Fastmart')
 
 # Criação das abas
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["Lucros e Margens", "Fornecedores", "Métodos de Pagamento", "Compra/Venda", "Estoque"])
+tabs = st.tabs(["Lucros e Margens", "Fornecedores", "Métodos de Pagamento", "Compra/Venda", "Estoque"])
 
-# Primeira aba: Lucros e Margens
-with tab1:
-    
-    subtab_1 = st.selectbox("Pagina: ", ["1", "2", "3"])
+# Criação das abas e sub abas
+
+#Primeira aba
+with tabs[0]:
+    subtab_1 = st.selectbox("Página: ", ["1", "2", "3"])
     
     if subtab_1 == '1':
-    
         col1, spacer, col2 = st.columns([1, 0.1, 1])
-    
     
         with col1:
             st.header('10 Produtos mais lucrativos')
@@ -121,7 +119,6 @@ with tab1:
             st.bar_chart(maior_perc_lucro.head(10).set_index('name')['perc_lucro'])
             
     elif subtab_1 == '2':
-        
         col3, spacer, col4 = st.columns([1, 0.1, 1])
         
         with col3:
@@ -132,7 +129,6 @@ with tab1:
             st.header('Visualização gráfica: ')
             st.bar_chart(vendidos_por_menos.head(10), x='name', y='sale_price')
     else:
-        
         col5, spacer, col6 = st.columns([1, 0.1, 1])
            
         with col5:
@@ -142,10 +138,9 @@ with tab1:
         with col6:
             st.header('Visualização gráfica: ')
             st.bar_chart(comprados_por_mais.head(10), x='name', y='sale_price')
-        
 
-# Segunda aba: Fornecedores
-with tab2:
+# Segunda aba 
+with tabs[1]:
     col7, spacer, col8 = st.columns([1, 0.1, 1])
     
     with col7:
@@ -159,8 +154,8 @@ with tab2:
         agrupa_product_forn = df_products.groupby(['supplier']).size()
         st.bar_chart(agrupa_product_forn)
 
-# Terceira aba: Métodos de Pagamento e Estoque
-with tab3:
+# Terceira aba
+with tabs[2]:
     col9, spacer, col10 = st.columns([1, 0.1, 1])
     
     with col9:
@@ -184,13 +179,14 @@ with tab3:
     with col10:
         st.header("Volume de operações por método de pagamento:")
         st.bar_chart(agrupa_pmm)
-with tab4:
-    
+
+# Quarta aba
+with tabs[3]:
     col11, spacer, col12 = st.columns([1, 0.1, 1])
     
     with col11:
         st.header("Operações por compra ou venda: ")
-        opr_selecionada = st.selectbox("selecione o tipo de opepração: ", select_compra_venda)
+        opr_selecionada = st.selectbox("Selecione o tipo de operação: ", select_compra_venda)
         operacoes_tipo_selec = fin_product_merge[fin_product_merge['description'] == opr_selecionada]
         st.dataframe(operacoes_tipo_selec[['name', 'description', 'value', 'quantity', 'payment_method']], hide_index=True, use_container_width= True)
         
@@ -204,12 +200,12 @@ with tab4:
         st.header("Volume de operações por compra ou venda: ")
         agrupa_cmp_vnd = df_finances.groupby(['description']).size()
         st.bar_chart(agrupa_cmp_vnd) 
-with tab5:
-    
-    subtab_2 = st.selectbox("Pagina: ", ["1", "2", ])
+
+# Quinta aba
+with tabs[4]:
+    subtab_2 = st.selectbox("Página: ", ["1", "2", ])
     
     if subtab_2 == '1':
-        
         col13, spacer, col14 = st.columns([1, 0.23, 1]) 
        
         with col13:
@@ -230,8 +226,3 @@ with tab5:
             st.header('10 Produtos Mais Próximos da Validade em maior quantidade: ')
             top_products_ord = top_products.sort_values(by= 'quantity_per_unit', ascending= False)
             st.dataframe(top_products_ord[['name', 'expiry_date', 'quantity_per_unit']], hide_index=True, use_container_width= True)
-        
-
-   
-
-    
