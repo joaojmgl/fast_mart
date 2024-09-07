@@ -2,7 +2,8 @@ import mysql.connector
 import pandas as pd
 import streamlit as st
 
-# Conectar ao banco de dados:
+# Conectar ao banco de dados e criação dos dataframes:
+
 conexao = mysql.connector.connect(
     host="localhost", # ip do banco
     user="root", # usuario
@@ -13,10 +14,39 @@ conexao = mysql.connector.connect(
 )
 
 # Lendo dados da tabela produtos
+
 query = "SELECT * FROM products"
 df_products = pd.read_sql(query, conexao)
 
-# Exibição de alguns insights da tabela produtos -----------
+#Lendo a tabela finance
+
+query_fin = "SELECT * FROM finance"
+df_finances = pd.read_sql(query_fin, conexao)
+
+#Lendo a tabela Companies
+
+query_comp = "SELECT * FROM companies"
+df_companies = pd.read_sql(query_comp, conexao)
+
+conexao.close() # FECHANDO CONEXÃO AQUI !!!!
+
+# mapeamento ID -> Nome e Nome -> ID (serve para exibir o nome da companhia no selectbox)
+id_to_name = dict(zip(df_companies['id'], df_companies['comp_name']))
+name_to_id = {name: id_ for id_, name in id_to_name.items()}
+
+nomes_empresas = list(id_to_name.values())
+
+# Seleção da empresa
+empresa_selecionada_nome = st.selectbox("Selecione a Empresa:", nomes_empresas) # faz o selectbox com os nomes
+empresa_selecionada_id = name_to_id[empresa_selecionada_nome] # captura o ID da empresa selecionada pelo nome
+
+# Filtragem dos dados baseados na empresa selecionada
+df_products = df_products[df_products['company_id'] == empresa_selecionada_id]
+df_finances = df_finances[df_finances['company_id'] == empresa_selecionada_id]
+
+# ----------------------------------------------------------------------------------------
+
+# Insights da tabela produtos ---------------------------------------------------------------------------------------
 
 # produtos mais lucrativos:
 
@@ -50,48 +80,6 @@ menor_estoque = df_products.sort_values(by='quantity_per_unit', ascending= True)
 vendidos_por_menos = df_products.sort_values(by= 'sale_price', ascending= True)
 comprados_por_mais = df_products.sort_values(by = 'purchase_price', ascending= False)
 
-# insights da tabela finances: --------------------
-
-#Lendo a tabela finance
-
-query_fin = "SELECT * FROM finance"
-df_finances = pd.read_sql(query_fin, conexao)
-conexao.close()
-
-# merge de finances e products: vou precisar lá em baixo
-
-fin_product_merge = pd.merge(df_finances, df_products[['id', 'name']], left_on='product_id', right_on='id', how='left') # left join
-
-# Operações por tipo: (compra ou venda)
-vendas = df_finances[df_finances['description'] == 'Venda']
-compras = df_finances[df_finances['description'] == 'Compra']
-total_vendas = vendas['value'].sum()
-total_compras = compras['value'].sum()
-
-select_compra_venda = df_finances['description'].tolist()[:2]
-
-
-# Operações por metodo de pagamento
- 
-select_payment_method = df_finances['payment_method'].tolist()[:4]
-
-dinheiro = df_finances[df_finances['payment_method'] == 'Dinheiro']
-total_din = dinheiro['value'].sum()
-
-credito = df_finances[df_finances['payment_method'] == 'Cartão de credito']
-total_cred = credito['value'].sum()
-
-pix = df_finances[df_finances['payment_method'] == 'Pix']
-total_pix = pix['value'].sum()
-
-deb = df_finances[df_finances['payment_method'] == 'Cartão de débito']
-total_deb = deb['value'].sum()
-
-# volume de operações por método de pagamento:
-
-agrupa_pmm = df_finances.groupby(['payment_method']).size()
-
-   
 # ----- daqui pra cima, insights
 
 # ----- daqui pra baixo, criação do dashboard
@@ -99,7 +87,7 @@ agrupa_pmm = df_finances.groupby(['payment_method']).size()
 st.title('Dashboard Fastmart')
 
 # Criação das abas
-tabs = st.tabs(["Lucros e Margens", "Fornecedores", "Métodos de Pagamento", "Compra/Venda", "Estoque"])
+tabs = st.tabs(["Lucros e Margens", "Fornecedores", "Estoque", "Fechamento de caixa"])
 
 # Criação das abas e sub abas
 
@@ -133,11 +121,11 @@ with tabs[0]:
            
         with col5:
             st.header('10 produtos com maior valor de compra:')
-            st.dataframe(comprados_por_mais.head(10)[['name', 'sale_price', 'supplier']], hide_index=True, use_container_width= True)
+            st.dataframe(comprados_por_mais.head(10)[['name', 'purchase_price', 'supplier']], hide_index=True, use_container_width= True)
         
         with col6:
             st.header('Visualização gráfica: ')
-            st.bar_chart(comprados_por_mais.head(10), x='name', y='sale_price')
+            st.bar_chart(comprados_por_mais.head(10), x='name', y='purchase_price')
 
 # Segunda aba 
 with tabs[1]:
@@ -156,73 +144,124 @@ with tabs[1]:
 
 # Terceira aba
 with tabs[2]:
-    col9, spacer, col10 = st.columns([1, 0.1, 1])
     
-    with col9:
-        st.header("Operações por método de pagamento:")
-        opr_selecionada_pm = st.selectbox("Selecione o método de pagamento:", select_payment_method)
-        operacoes_met_selec = fin_product_merge[fin_product_merge['payment_method'] == opr_selecionada_pm]
-        st.dataframe(operacoes_met_selec[['name', 'description', 'value', 'quantity', 'payment_method']], hide_index=True, use_container_width=True)
-        
-        # Exibir o valor total baseado no método de pagamento
-        if opr_selecionada_pm == 'Dinheiro':
-            total = total_din
-        elif opr_selecionada_pm == 'Cartão de credito':
-            total = total_cred
-        elif opr_selecionada_pm == 'Pix':
-            total = total_pix
-        else:
-            total = total_deb
-
-        st.markdown(f"<p><b>Valor total das transações pagas com {opr_selecionada_pm}:</b></p><p> R$ {total:.2f}</p>", unsafe_allow_html=True)
-    
-    with col10:
-        st.header("Volume de operações por método de pagamento:")
-        st.bar_chart(agrupa_pmm)
-
-# Quarta aba
-with tabs[3]:
-    col11, spacer, col12 = st.columns([1, 0.1, 1])
-    
-    with col11:
-        st.header("Operações por compra ou venda: ")
-        opr_selecionada = st.selectbox("Selecione o tipo de operação: ", select_compra_venda)
-        operacoes_tipo_selec = fin_product_merge[fin_product_merge['description'] == opr_selecionada]
-        st.dataframe(operacoes_tipo_selec[['name', 'description', 'value', 'quantity', 'payment_method']], hide_index=True, use_container_width= True)
-        
-        if opr_selecionada == 'Venda':
-            totalcv = total_vendas
-        else:
-            totalcv = total_compras
-        st.markdown(f"<p><b>Valor total das transações de {opr_selecionada}:</b></p><p> R$ {totalcv:.2f}</p>", unsafe_allow_html=True)
-        
-    with col12:
-        st.header("Volume de operações por compra ou venda: ")
-        agrupa_cmp_vnd = df_finances.groupby(['description']).size()
-        st.bar_chart(agrupa_cmp_vnd) 
-
-# Quinta aba
-with tabs[4]:
     subtab_2 = st.selectbox("Página: ", ["1", "2", ])
     
     if subtab_2 == '1':
-        col13, spacer, col14 = st.columns([1, 0.23, 1]) 
+        col9, spacer, col10 = st.columns([1, 0.1, 1])
        
-        with col13:
-            st.header('10 produtos em menor quantidade no estoque:')
-            st.dataframe(menor_estoque.head(10)[['name', 'quantity_per_unit']], hide_index=True, use_container_width= True)
+        with col9:
+                st.header('10 produtos em menor quantidade no estoque:')
+                st.dataframe(menor_estoque.head(10)[['name', 'quantity_per_unit']], hide_index=True, use_container_width= True)
         
-        with col14:
-            st.header('Volume dos 10 produtos em menor quantidade no estoque: ')
-            st.bar_chart(menor_estoque.head(10), x='name', y='quantity_per_unit')
+        with col10:
+                st.header('Volume dos 10 produtos em menor quantidade no estoque: ')
+                st.bar_chart(menor_estoque.head(10), x='name', y='quantity_per_unit')
     else:
-        col15, spacer, col16 = st.columns([1, 0.23, 1])
+        col11, spacer, col12 = st.columns([1, 0.23, 1])
         
-        with col15:
+        with col11:
             st.header('10 Produtos Mais Próximos da Validade: ')
             st.dataframe(top_products[['name', 'expiry_date', 'quantity_per_unit']], hide_index=True, use_container_width= True)
             
-        with col16:
+        with col12:
             st.header('10 Produtos Mais Próximos da Validade em maior quantidade: ')
             top_products_ord = top_products.sort_values(by= 'quantity_per_unit', ascending= False)
             st.dataframe(top_products_ord[['name', 'expiry_date', 'quantity_per_unit']], hide_index=True, use_container_width= True)
+    
+# Quarta aba
+with tabs[3]:
+    st.header("Fechamento de Caixa")
+    
+    # Seção 1: Seleção do Caixa e Tipo de Fechamento
+    col1, col2 = st.columns(2)
+
+    with col1:
+        # Selecionar o caixa
+        caixas_disponiveis = df_finances['cash_register'].unique().tolist()
+        caixa_selecionado = st.selectbox("Selecione o Caixa:", caixas_disponiveis)
+    
+    with col2:
+        # Selecionar o tipo de fechamento (diário, semanal, mensal)
+        tipo_fechamento = st.selectbox("Selecione o tipo de fechamento:", ["Diário", "Semanal", "Mensal"])
+
+    # Filtrar os dados do caixa selecionado
+    df_finances_caixa = df_finances[df_finances['cash_register'] == caixa_selecionado]
+    
+    # Converter a coluna 'date' para datetime
+    df_finances_caixa['date'] = pd.to_datetime(df_finances_caixa['date'])
+
+    # Seção 2: Fechamento de Caixa por Período
+    st.subheader(f"Fechamento de Caixa - {tipo_fechamento}")
+
+    # Função para gerar o fechamento baseado na seleção
+    if tipo_fechamento == "Diário":
+        df_fechamento = df_finances_caixa.groupby(df_finances_caixa['date'].dt.date).agg({'value': 'sum'}).reset_index()
+        df_fechamento.columns = ['Data', 'Total']
+    elif tipo_fechamento == "Semanal":
+        df_fechamento = df_finances_caixa.groupby(df_finances_caixa['date'].dt.isocalendar().week).agg({'value': 'sum'}).reset_index()
+        df_fechamento.columns = ['Semana', 'Total']
+    elif tipo_fechamento == "Mensal":
+        df_fechamento = df_finances_caixa.groupby(df_finances_caixa['date'].dt.to_period('M')).agg({'value': 'sum'}).reset_index()
+        df_fechamento.columns = ['Mês', 'Total']
+
+    # Exibir o fechamento em formato de tabela
+    st.dataframe(df_fechamento, hide_index=True, use_container_width=True)
+
+    # Exibir gráfico de barras do fechamento
+    st.bar_chart(df_fechamento.set_index(df_fechamento.columns[0])['Total'])
+
+    # Seção 3: Totais de Compra/Venda
+    st.subheader(f"Totais de Compra/Venda - {tipo_fechamento}")
+
+    # Filtrar vendas e compras
+    vendas = df_finances_caixa[df_finances_caixa['description'] == 'Venda']
+    compras = df_finances_caixa[df_finances_caixa['description'] == 'Compra']
+
+    # Agrupar pelo tipo de operação e data
+    if tipo_fechamento == "Diário":
+        vendas_fechamento = vendas.groupby(vendas['date'].dt.date).agg({'value': 'sum'}).reset_index()
+        compras_fechamento = compras.groupby(compras['date'].dt.date).agg({'value': 'sum'}).reset_index()
+    elif tipo_fechamento == "Semanal":
+        vendas_fechamento = vendas.groupby(vendas['date'].dt.isocalendar().week).agg({'value': 'sum'}).reset_index()
+        compras_fechamento = compras.groupby(compras['date'].dt.isocalendar().week).agg({'value': 'sum'}).reset_index()
+    elif tipo_fechamento == "Mensal":
+        vendas_fechamento = vendas.groupby(vendas['date'].dt.to_period('M')).agg({'value': 'sum'}).reset_index()
+        compras_fechamento = compras.groupby(compras['date'].dt.to_period('M')).agg({'value': 'sum'}).reset_index()
+
+    # Exibir totais de compra e venda
+    col3, col4 = st.columns(2)
+    with col3:
+        st.metric("Total de Vendas", f"R$ {vendas['value'].sum():.2f}")
+    with col4:
+        st.metric("Total de Compras", f"R$ {compras['value'].sum():.2f}")
+
+    # Exibir gráfico de comparação entre compra e venda
+    df_comparacao = pd.DataFrame({
+        'Operação': ['Venda', 'Compra'],
+        'Total': [vendas['value'].sum(), compras['value'].sum()]
+    })
+
+    st.subheader("Comparação de Totais de Compra/Venda")
+    st.bar_chart(df_comparacao.set_index('Operação'))
+
+    # Seção 4: Fechamento por Métodos de Pagamento
+    st.subheader(f"Fechamento por Método de Pagamento - {tipo_fechamento}")
+
+    # Agrupar por método de pagamento
+    metodos_pagamento = df_finances_caixa.groupby(['payment_method']).agg({'value': 'sum'}).reset_index()
+
+    # Exibir totais por método de pagamento
+    col5, col6, col7, col8 = st.columns(4)
+    for i, row in enumerate(metodos_pagamento.itertuples()):
+        if i == 0:
+            col5.metric(f"Total {row.payment_method}", f"R$ {row.value:.2f}")
+        elif i == 1:
+            col6.metric(f"Total {row.payment_method}", f"R$ {row.value:.2f}")
+        elif i == 2:
+            col7.metric(f"Total {row.payment_method}", f"R$ {row.value:.2f}")
+        elif i == 3:
+            col8.metric(f"Total {row.payment_method}", f"R$ {row.value:.2f}")
+
+    # Exibir gráfico de barras dos métodos de pagamento
+    st.bar_chart(metodos_pagamento.set_index('payment_method')['value'])
