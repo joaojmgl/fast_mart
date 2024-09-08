@@ -16,6 +16,3 @@ Usado para aplicar migrações ao banco de dados usando o Sequelize CLI (rodar a
 Usado para reverter migrações
 
 !! lembrar de criar o banco de dados "trabalho" ou mudarem no código para ter outro nome, e também mudar a senha do banco de dados de vocês.
-
--> streamlit run analise.py 
-Usado para executar o dashboard de analise de dados. (Deve ser executado dentro de ./NODE_SEQUELIZE/src/data-analisys)
