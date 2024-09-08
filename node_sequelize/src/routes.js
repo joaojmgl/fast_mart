@@ -2,7 +2,7 @@
 const express = require('express'); // Importando o módulo 'express', um framework web para Node.js.
 
 const router = express.Router(); // Criando uma instância do roteador do Express.
-
+const Analytics = require('./controllers/AnalyticsController');
 const UserController = require('./controllers/UserController'); 
 const ProductController = require('./controllers/ProductController'); 
 const CompanyController =  require('./controllers/CompanyController');
@@ -22,6 +22,7 @@ router.post('/companys', CompanyController.store);
 router.put('/companys/:company_id', CompanyController.update);
 router.get('/companys/:company_id/employees', CompanyController.listEmployeesByCompany);
 
+router.get('/analysis', Analytics.executeAnalisys);
 
 // ==============================================================================
 // A partir daqui as funções precisarão do token:
