@@ -7,8 +7,8 @@ import streamlit as st
 conexao = mysql.connector.connect(
     host="localhost", # ip do banco
     user="root", # usuario
-    password="123456", # senha
-    database="fastmart", # nome do banco
+    password="280204", # senha
+    database="trabalho06", # nome do banco
     charset="utf8mb4",  
     collation="utf8mb4_unicode_ci"
 )
@@ -17,7 +17,7 @@ conexao = mysql.connector.connect(
 
 query = "SELECT * FROM products"
 df_products = pd.read_sql(query, conexao)
-
+print(df_products.head())
 #Lendo a tabela finance
 
 query_fin = "SELECT * FROM finance"

@@ -4,7 +4,7 @@ module.exports = {
     async executeAnalisys(req, res) {
         try {
             // Mudança de diretório e execução do script Python -- COLOCAR CAMINHO CORRETO PARA A PASTA DATA-ANALISYS AQUI (TEM QUE ESTAR ENTRE "")
-            execSync(`cd "C:/Users/Gustavo Henrique/Desktop/fast_mart/node_sequelize/src/data-analisys" && python start_server.py`, { stdio: 'inherit' });
+            execSync(`cd "C:/Users/julia/Documents/GitHub/fast_mart/node_sequelize/src/data-analisys" && python start_server.py`, { stdio: 'inherit' });
 
             return res.status(200).send({
                 status: 1,

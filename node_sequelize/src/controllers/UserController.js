@@ -14,14 +14,14 @@ function generateToken(params = {}) {
 module.exports = {
   async login(req, res) {
     const { password, email } = req.body;
-    const {company_id} = req.params;
+    //const {company_id} = req.params;
 
     try {
 
       const user = await User.findOne({
         where: {
           email: email,
-          company_id: company_id, // Certifique-se de que o campo no banco de dados seja company_id
+          //company_id: company_id, // Certifique-se de que o campo no banco de dados seja company_id
         },
       });
 
@@ -39,18 +39,6 @@ module.exports = {
           user: {},
         });
       }
-
-      // Encontra o usuário pelo e-mail
-     // const user = await User.findOne({ where: { email } });
-
-      // Verifica se o usuário existe
-      // if (!user) {
-      //   return res.status(400).send({
-      //     status: 0,
-      //     message: "E-mail ou senha incorreto!",
-      //     user: {},
-      //   });
-      // }
 
       // Verifica a senha
       const isPasswordValid = bcrypt.compareSync(password, user.password);
@@ -96,6 +84,8 @@ module.exports = {
     }
   },
 
+  // Lista 1 usuário específico de uma empresa específica
+
   async index(req, res) {
     try {
       // Supondo que o ID da empresa venha do token do usuário ou outra fonte de autenticação
@@ -135,6 +125,77 @@ module.exports = {
       });
     }
   },
+
+  // Listas todos usuários do sistema
+
+  async indexAll(req, res) {
+    try {
+      // Supondo que o ID da empresa venha do token do usuário ou outra fonte de autenticação
+      const { user_id } = req.params;
+
+      // Busca os usuários associados à empresa
+      const users = await User.findAll({
+        attributes: { exclude: ["password"] }, // Exclui a senha da resposta
+      });
+
+      if (!users) {
+        return res.status(404).send({ message: "Usuário não encontrado." });
+      }
+
+      if (users.length === 0) {
+        return res
+          .status(200)
+          .send({ message: "Nenhum usuário cadastrado para esta empresa." });
+      }
+
+      return res.status(200).send({ users });
+    } catch (err) {
+      return res.status(500).send({
+        status: 0,
+        message: "Erro ao buscar usuários.",
+        error: err.message,
+      });
+    }
+  },
+
+  // Lista todos usuários de uma empresa específica
+
+  async indexAllCompany(req, res) {
+    try {
+  
+      const {company_id} = req.params;
+      
+      // const id_empresa = user.company_id; // Ajuste conforme o nome correto do campo
+      
+      // Busca os usuários associados à empresa
+      const users = await User.findAll({
+        where: {
+          company_id: company_id,
+        },
+        attributes: { exclude: ["password"] }, // Exclui a senha da resposta
+      });
+
+      if (!users) {
+        return res.status(404).send({ message: "Usuário não encontrado." });
+      }
+
+      if (users.length === 0) {
+        return res
+          .status(200)
+          .send({ message: "Nenhum usuário cadastrado para esta empresa." });
+      }
+
+      return res.status(200).send({ users });
+    } catch (err) {
+      return res.status(500).send({
+        status: 0,
+        message: "Erro ao buscar usuários.",
+        error: err.message,
+      });
+    }
+  },
+
+  
 
   async logout(req, res) {
   try {
