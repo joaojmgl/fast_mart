@@ -25,7 +25,7 @@ router.get(
   CompanyController.listEmployeesByCompany
 );
 
-router.get('/analysis', Analytics.executeAnalisys);
+router.get('/analysis/:company_id', Analytics.executeAnalisys);
 
 // ==============================================================================
 // A partir daqui as funções precisarão do token:
