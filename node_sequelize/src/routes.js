@@ -4,7 +4,7 @@ const router = express.Router(); // Criando uma instância do roteador do Expres
 
 const UserController = require("./controllers/UserController");
 const ProductController = require("./controllers/ProductController");
-const Analytics = require('./controllers/AnalyticsController');
+const Analytics = require("./controllers/AnalyticsController");
 const CompanyController = require("./controllers/CompanyController");
 const FinanceController = require("./controllers/FinanceController");
 const authMiddleware = require("./middlewares/auth");
@@ -25,7 +25,7 @@ router.get(
   CompanyController.listEmployeesByCompany
 );
 
-router.get('/analysis/:company_id', Analytics.executeAnalisys);
+router.get("/analysis/:company_id", Analytics.executeAnalisys);
 
 // ==============================================================================
 // A partir daqui as funções precisarão do token:
@@ -40,7 +40,7 @@ router.get("/users/:user_id/:company_id", UserController.index);
 router.put("/users/:user_id/:company_id", UserController.update);
 router.post("/users/logout/:user_id/:company_id", UserController.logout);
 router.delete("/users/:user_id/:company_id", UserController.delete);
-router.post("/users/forgot/:company_id", UserController.forgotPassword);
+router.post("/users/forgot/", UserController.forgotPassword);
 router.put("/users/change/:user_id/:company_id", UserController.changePassword);
 
 //   ==  Product   ==   //
