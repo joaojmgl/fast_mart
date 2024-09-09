@@ -12,11 +12,11 @@ const moment = require("moment");
 const productController = require("./ProductController");
 
 module.exports = {
-  // Função de compra
 
+  // Função de compra
   async store(req, res) {
-    const { date, value, quantity, expiry_date, product, payment_method } =
-      req.body;
+
+    const { date, value, quantity, expiry_date, product, payment_method } = req.body;
     const { company_id } = req.params;
     const { code } = product;
     const description = "Compra";
@@ -27,8 +27,6 @@ module.exports = {
         message: "ID da empresa não fornecido.",
       });
     }
-
-    // console.log("Product recebido:", product);
 
     try {
       // Cadastrar o produto primeiro
@@ -104,6 +102,7 @@ module.exports = {
 
   // Função de venda
   async recordSale(req, res) {
+
     const { payment_method, products, cash_register } = req.body;
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -111,7 +110,6 @@ module.exports = {
     const dd = String(today.getDate()).padStart(2, "0");
 
     const date = `${yyyy}-${mm}-${dd}`;
-    // const { user_id } = req.params;
     const { company_id } = req.params;
     const description = "Venda";
     console.log(cash_register);
@@ -137,9 +135,6 @@ module.exports = {
           });
         }
 
-        // const user = await User.findByPk(user_id);
-        // const id_empresa = user.id_empresa;
-
         const existingProduct = await Product.findOne({
           where: {
             code,
@@ -154,7 +149,7 @@ module.exports = {
           });
         }
 
-        // Chama a função decreaseQuantity e captura o resultado
+        // Chama a função decreaseQuantity e pega o resultado
         const result = await productController.decreaseQuantity({
           body: { code: existingProduct.code, quantity, company_id },
         });
@@ -360,7 +355,6 @@ module.exports = {
   },
 
   // isso é somente para os desenvolvedores: retorna todas as finanças de uma empresa
-
   async index(req, res) {
     const { company_id } = req.params;
     try {
@@ -386,11 +380,12 @@ module.exports = {
 
   // Função para cancelar uma venda
   async cancelSale(req, res) {
+
     const { saleId } = req.body; // ID da venda a ser cancelada
-    const { company_id } = req.params; // ID da empresa do parâmetro
+    const { company_id } = req.params; 
 
     try {
-      // Encontre o registro financeiro com o ID fornecido e o company_id
+      
       const financeRecord = await Finance.findOne({
         where: {
           id: saleId,
@@ -413,13 +408,13 @@ module.exports = {
           .json({ message: "Apenas vendas podem ser canceladas" });
       }
 
-      // Obtenha o code do produto e a quantidade para reverter a operação
+      // Obter o code do produto e a quantidade
       const { product_id, quantity } = financeRecord;
       const { code } = await Product.findOne({ where: { id: product_id } });
-      // Exclua o registro financeiro da venda
+      // Excluir o registro financeiro da venda
       await Finance.destroy({ where: { id: saleId } });
 
-      // Aumente a quantidade do produto de volta no estoque
+      // Aumentar a quantidade do produto de volta no estoque
       console.log(quantity);
       console.log(code);
       const result = await productController.increaseQuantity(
@@ -429,9 +424,9 @@ module.exports = {
         quantity,
         company_id
       );
-      // console.log('increaseQuantity result:', result); // Verifique o resultado da função increaseQuantity
+      // console.log('increaseQuantity result:', result);
 
-      // Verifique se a resposta da função increaseQuantity tem status 1
+      // Verificar se a resposta da função increaseQuantity tem status 1
       if (result[1] === 0) {
         return res.status(400).json(result[2]);
       }

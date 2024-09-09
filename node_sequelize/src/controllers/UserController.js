@@ -12,15 +12,15 @@ function generateToken(params = {}) {
 }
 
 module.exports = {
-  async login(req, res) {
-    const { password, email } = req.body;
-    //const {company_id} = req.params;
 
+  // Realizar login no sistema
+  async login(req, res) {
+
+    const { password, email } = req.body;
     try {
       const user = await User.findOne({
         where: {
           email: email,
-          //company_id: company_id, // Certifique-se de que o campo no banco de dados seja company_id
         },
       });
 
@@ -30,6 +30,7 @@ module.exports = {
           message: "Usuário não encontrado nesta empresa.",
         });
       }
+
       // Verifica se o e-mail foi fornecido
       if (!email) {
         return res.status(400).send({
@@ -74,6 +75,7 @@ module.exports = {
         user,
         token,
       });
+
     } catch (err) {
       return res.status(500).send({
         status: 0,
@@ -84,17 +86,11 @@ module.exports = {
   },
 
   // Lista 1 usuário específico de uma empresa específica
-
   async index(req, res) {
+
     try {
-      // Supondo que o ID da empresa venha do token do usuário ou outra fonte de autenticação
       const { user_id } = req.params;
       const { company_id } = req.params;
-
-      // Obtém o ID da empresa do usuário autenticado, ou qualquer outra lógica que você estiver usando
-      // const user = await User.findByPk(user_id);
-
-      // const id_empresa = user.company_id; // Ajuste conforme o nome correto do campo
 
       // Busca os usuários associados à empresa
       const users = await User.findOne({
@@ -119,20 +115,18 @@ module.exports = {
     } catch (err) {
       return res.status(500).send({
         status: 0,
-        message: "Erro ao buscar usuários.",
+        message: "Erro ao buscar usuário.",
         error: err.message,
       });
     }
   },
 
   // Listas todos usuários do sistema
-
   async indexAll(req, res) {
+
     try {
-      // Supondo que o ID da empresa venha do token do usuário ou outra fonte de autenticação
       const { user_id } = req.params;
 
-      // Busca os usuários associados à empresa
       const users = await User.findAll({
         attributes: { exclude: ["password"] }, // Exclui a senha da resposta
       });
@@ -149,6 +143,7 @@ module.exports = {
 
       return res.status(200).send({ users });
     } catch (err) {
+
       return res.status(500).send({
         status: 0,
         message: "Erro ao buscar usuários.",
@@ -158,12 +153,10 @@ module.exports = {
   },
 
   // Lista todos usuários de uma empresa específica
-
   async indexAllCompany(req, res) {
+
     try {
       const { company_id } = req.params;
-
-      // const id_empresa = user.company_id; // Ajuste conforme o nome correto do campo
 
       // Busca os usuários associados à empresa
       const users = await User.findAll({
@@ -184,6 +177,7 @@ module.exports = {
       }
 
       return res.status(200).send({ users });
+
     } catch (err) {
       return res.status(500).send({
         status: 0,
@@ -193,7 +187,9 @@ module.exports = {
     }
   },
 
+  // Realizar logout
   async logout(req, res) {
+
     try {
       const { user_id } = req.params;
       const { company_id } = req.params;
@@ -225,6 +221,7 @@ module.exports = {
         status: 1,
         message: "Usuário deslogado com sucesso!",
       });
+
     } catch (error) {
       return res.status(500).send({
         status: 0,
@@ -234,21 +231,13 @@ module.exports = {
     }
   },
 
+  // Cadastrar usuário
   async store(req, res) {
-    try {
-      const {
-        name,
-        password,
-        email,
-        code,
-        birthday_date,
-        cpf,
-        phone,
-        education,
-        company_id, // Alterado para `company_id` se for o nome correto
-      } = req.body;
 
-      // Verifique se o CPF já existe
+    try {
+      const {name, password, email, code, birthday_date, cpf, phone, education, company_id} = req.body;
+
+      // Verifica se o CPF já existe
       const existingCpf = await User.findOne({ where: { cpf } });
 
       if (existingCpf) {
@@ -258,7 +247,7 @@ module.exports = {
         });
       }
 
-      // Verifique se o e-mail já existe
+      // Verifica se o e-mail já existe
       const existingEmail = await User.findOne({ where: { email } });
 
       if (existingEmail) {
@@ -269,55 +258,39 @@ module.exports = {
       }
 
       // Crie o novo usuário
-      const user = await User.create({
-        name,
-        password,
-        email,
-        code,
-        birthday_date,
-        cpf,
-        phone,
-        education,
-        company_id, // Alterado para `company_id` se for o nome correto
-      });
+      const user = await User.create({name, password, email, code, birthday_date, cpf, phone, education, company_id});
 
-      user.password = undefined; // Remova a senha da resposta
+      user.password = undefined; // Remove a senha da resposta
 
       return res.status(201).send({
         status: 1,
         message: "Usuário cadastrado com sucesso!",
         user,
       });
+
     } catch (error) {
-      console.error("Erro ao cadastrar usuário:", error); // Adiciona um log para depuração
+      console.error("Erro ao cadastrar usuário:", error);
       return res.status(500).send({
         status: 0,
         message: "Erro ao cadastrar usuário.",
-        error: error.message, // Retorna a mensagem de erro para diagnóstico
+        error: error.message, 
       });
     }
   },
 
+  // Atualizar usuário
   async update(req, res) {
-    const {
-      name,
-      email,
-      code,
-      birthday_date,
-      cpf,
-      phone,
-      education,
-      password,
-    } = req.body;
+
+    const {name, email, code, birthday_date, cpf, phone, education, password,} = req.body;
     const { user_id } = req.params;
-    const { company_id } = req.params; // Certifique-se de que esse campo está no corpo da requisição
+    const { company_id } = req.params; 
 
     try {
-      // Encontrar o usuário a ser atualizado
+      // Encontra o usuário a ser atualizado
       const user = await User.findOne({
         where: {
           id: user_id,
-          company_id: company_id, // Certifique-se de que o campo no banco de dados seja company_id
+          company_id: company_id, 
         },
       });
 
@@ -328,35 +301,28 @@ module.exports = {
         });
       }
 
-      // Preparar os dados para atualização
-      let updateData = {
-        name,
-        email,
-        code,
-        birthday_date,
-        cpf,
-        phone,
-        education,
-      };
+      // Prepara os dados para atualização
+      let updateData = {name, email, code, birthday_date, cpf, phone, education};
 
-      // Verificar se a senha foi fornecida e criptografá-la
+      // Verifica se a senha foi fornecida e criptografa ela
       if (password) {
         const salt = bcrypt.genSaltSync();
         updateData.password = bcrypt.hashSync(password, salt);
       }
 
-      // Atualizar o usuário no banco de dados
+      // Atualiza o usuário no banco de dados
       await User.update(updateData, {
         where: {
           id: user_id,
         },
       });
 
-      // Retornar sucesso
+      // Retorna sucesso
       return res.status(200).send({
         status: 1,
         message: "Usuário atualizado com sucesso!",
       });
+
     } catch (err) {
       return res.status(500).send({
         status: 0,
@@ -366,6 +332,7 @@ module.exports = {
     }
   },
 
+  // Deletar usuário
   async delete(req, res) {
     try {
       const { user_id } = req.params;
@@ -375,7 +342,7 @@ module.exports = {
       const user = await User.findOne({
         where: {
           id: user_id,
-          company_id: company_id, // Certifique-se de que o campo no banco de dados seja company_id
+          company_id: company_id,
         },
       });
 
@@ -395,6 +362,7 @@ module.exports = {
         status: 1,
         message: "Usuário deletado com sucesso!",
       });
+
     } catch (err) {
       return res.status(500).send({
         status: 0,
@@ -404,9 +372,10 @@ module.exports = {
     }
   },
 
+  // Esquecer senha
   async forgotPassword(req, res) {
+
     const { cpf, birthday_date, newPassword } = req.body;
-    //const { company_id } = req.params;
 
     // Validação dos dados de entrada
     if (!cpf || !birthday_date || !newPassword) {
@@ -419,7 +388,6 @@ module.exports = {
     const user = await User.findOne({
       where: {
         cpf: cpf,
-        //company_id: company_id, // Certifique-se de que o campo no banco de dados seja company_id
       },
     });
 
@@ -485,16 +453,17 @@ module.exports = {
     }
   },
 
+  // Editar senha
   async changePassword(req, res) {
-    const { email, oldPassword, newPassword } = req.body;
 
+    const { email, oldPassword, newPassword } = req.body;
     const { user_id } = req.params;
     const { company_id } = req.params;
 
     const user = await User.findOne({
       where: {
         id: user_id,
-        company_id: company_id, // Certifique-se de que o campo no banco de dados seja company_id
+        company_id: company_id, 
       },
     });
 
@@ -505,15 +474,7 @@ module.exports = {
       });
     }
 
-    // const user = await User.findByPk(user_id);
-    // const id_empresa = user.id_empresa;
-
-    console.log(email);
-
     try {
-      // Busca o usuário pelo email
-
-      console.log(user);
 
       if (!user || user.email != email) {
         return res.status(404).send({
@@ -536,7 +497,6 @@ module.exports = {
 
       await User.update(
         { password: hashedPassword },
-        // { where: { id: user.id, id_empresa } }
         { where: { id: user.id, company_id } }
       );
 

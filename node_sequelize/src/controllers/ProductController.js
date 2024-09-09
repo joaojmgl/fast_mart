@@ -20,6 +20,7 @@ function generateToken(params = {}) {
 }
 
 module.exports = {
+
   // Função para cadastrar um novo produto
   async store(product, quantity, expiryDate, company_id) {
     try {
@@ -32,7 +33,7 @@ module.exports = {
         code,
       } = product;
 
-      // Crie o novo produto
+      // Cria o novo produto
       const newProduct = await Product.create({
         name,
         unit_of_measure,
@@ -51,7 +52,7 @@ module.exports = {
         product: newProduct,
       };
     } catch (error) {
-      console.error(error); // Log para depuração
+      console.error(error); 
       return {
         status: 500,
         message: "Erro ao cadastrar produto",
@@ -137,6 +138,7 @@ module.exports = {
       });
     }
   },
+
   // Função para atualizar um produto
   async update(req, res) {
     try {
@@ -281,6 +283,7 @@ module.exports = {
     }
   },
 
+  // Função para deletar uma certa quantidade de um produto
   async deleteQuantity(req, res) {
     try {
       const { quantity, description } = req.body;
@@ -480,6 +483,7 @@ module.exports = {
     }
   },
 
+  // Função para verificar os produtos que irão vencer daqui x dias
   async getExpiringProducts(req, res) {
     try {
       const days = parseInt(req.query.days, 10); // Obtenha 'days' dos parâmetros de consulta

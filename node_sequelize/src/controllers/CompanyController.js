@@ -9,8 +9,8 @@ const { where } = require("sequelize");
 const sequelize = new Sequelize(dbConfig);
 
 module.exports = {
-  // listar todas as empresas
 
+  // listar todas as empresas
   async index(req, res) {
     try {
       const company = await Company.findAll();
@@ -22,7 +22,6 @@ module.exports = {
   },
 
   // mostra uma empresa específica
-
   async show(req, res) {
     try {
       const { company_id } = req.params;
@@ -54,7 +53,6 @@ module.exports = {
   },
 
   //cadastra empresa
-
   async store(req, res) {
     try {
       const { comp_name, comp_cnpj, comp_employees, address } = req.body;
@@ -90,7 +88,6 @@ module.exports = {
   },
 
   // atualiza empresa
-
   async update(req, res) {
     try {
       const { comp_name, comp_cnpj, comp_employees, address } = req.body;
@@ -161,7 +158,6 @@ module.exports = {
   },
 
   // exibe todos os funcionáriso de uma empresa
-
   async listEmployeesByCompany(req, res) {
     try {
       const { company_id } = req.params;

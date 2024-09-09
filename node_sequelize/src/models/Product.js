@@ -25,11 +25,3 @@ class Product extends Model {
 }
 
 module.exports = Product;
-
-/*nome do produto
-preço
-peso
-quantidade
-data vallidade
-fornecedor
-codigo*/

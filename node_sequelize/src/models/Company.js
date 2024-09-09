@@ -13,11 +13,7 @@ class companies extends Model {
     }
 
     static associate(models){
-        // this.hasMany(models.Address, { foreignKey: 'company_id', as: 'address' });
-        // this.hasMany(models.DeletedProducts, { foreignKey: 'company_id', as: 'DeletedProducts' });
-        // this.hasMany(models.Finance, { foreignKey: 'company_id', as: 'Finance' });
-        // this.hasMany(models.Product, { foreignKey: 'company_id', as: 'Product' });
-        // this.hasMany(models.User, { foreignKey: 'company_id', as: 'User' });
+
     }
 }
 

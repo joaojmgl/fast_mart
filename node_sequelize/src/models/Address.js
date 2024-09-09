@@ -12,9 +12,8 @@ class Address extends Model {
             sequelize
         })
     }
-    /*Endereço (rua, número, bairro, cidade, estado, país, complemento)*/
+    // Endereço (rua, número, bairro, cidade, estado)
     static associate(models) {
-        // this.hasOne(models.company, { foreignKey: 'addresses_id', as: 'companies' });
         this.belongsTo(models.companies, { foreignKey: 'company_id', as: 'companies' });
     }
 }
