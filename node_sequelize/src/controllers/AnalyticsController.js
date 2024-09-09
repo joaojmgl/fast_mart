@@ -12,7 +12,8 @@ module.exports = {
             fs.writeFileSync(tempFilePath, id);
 
             // Mudança de diretório e execução do script Python
-            execSync(`cd "C:/Users/Gustavo Henrique/Desktop/fast_mart/node_sequelize/src/data-analisys" && python start_server.py`, { stdio: 'inherit' });
+            // MUDAR O CAMINHO AQUI
+            execSync(`cd "C:/Users/julia/Documents/GitHub/fast_mart/node_sequelize/src/data-analisys" && python start_server.py`, { stdio: 'inherit' });
 
             return res.status(200).send({
                 status: 1,

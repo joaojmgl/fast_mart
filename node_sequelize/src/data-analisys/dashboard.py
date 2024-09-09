@@ -4,26 +4,28 @@ import streamlit as st
 import os
 
 def get_companyID():
-    # Define o caminho completo do arquivo temporário
-    temp_file_path = 'C:\\Users\\Gustavo Henrique\\Desktop\\fast_mart\\node_sequelize\\src\\controllers\\company_id.txt'
+    # Define o caminho completo do arquivo temporário 
+    #COLAR CAMINHO AQUI
+    temp_file_path = 'C:/Users/julia/Documents/GitHub/fast_mart/node_sequelize/src/controllers/company_id.txt'
 
     # Lê o company_id do arquivo temporário
     if os.path.exists(temp_file_path):
         with open(temp_file_path, 'r') as file:
             company_id = file.read().strip()
         # Opcional: Remove o arquivo temporário após leitura
-        os.remove(temp_file_path)
+        #os.remove(temp_file_path)
         return company_id
     else:
         raise FileNotFoundError("Arquivo com o Company ID não encontrado.")
 
 # Conectar ao banco de dados e criação dos dataframes:
 
+#MUDAR SUAS CREDENCIAIS AQUI
 conexao = mysql.connector.connect(
     host="localhost", # ip do banco
     user="root", # usuario
-    password="123456", # senha
-    database="fastmart", # nome do banco
+    password="280204", # senha
+    database="trabalho06", # nome do banco
     charset="utf8mb4",  
     collation="utf8mb4_unicode_ci"
 )
