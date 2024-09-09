@@ -1,14 +1,31 @@
 import mysql.connector
 import pandas as pd
 import streamlit as st
+import os
+
+def get_companyID():
+    # Define o caminho completo do arquivo temporário 
+    #COLAR CAMINHO AQUI
+    temp_file_path = 'C:/Users/julia/Documents/GitHub/fast_mart/node_sequelize/src/controllers/company_id.txt'
+
+    # Lê o company_id do arquivo temporário
+    if os.path.exists(temp_file_path):
+        with open(temp_file_path, 'r') as file:
+            company_id = file.read().strip()
+        # Opcional: Remove o arquivo temporário após leitura
+        #os.remove(temp_file_path)
+        return company_id
+    else:
+        raise FileNotFoundError("Arquivo com o Company ID não encontrado.")
 
 # Conectar ao banco de dados e criação dos dataframes:
 
+#MUDAR SUAS CREDENCIAIS AQUI
 conexao = mysql.connector.connect(
     host="localhost", # ip do banco
     user="root", # usuario
-    password="123456", # senha
-    database="fastmart", # nome do banco
+    password="280204", # senha
+    database="trabalho06", # nome do banco
     charset="utf8mb4",  
     collation="utf8mb4_unicode_ci"
 )
@@ -30,19 +47,12 @@ df_companies = pd.read_sql(query_comp, conexao)
 
 conexao.close() # FECHANDO CONEXÃO AQUI !!!!
 
-# mapeamento ID -> Nome e Nome -> ID (serve para exibir o nome da companhia no selectbox)
-id_to_name = dict(zip(df_companies['id'], df_companies['comp_name']))
-name_to_id = {name: id_ for id_, name in id_to_name.items()}
-
-nomes_empresas = list(id_to_name.values())
-
-# Seleção da empresa
-empresa_selecionada_nome = st.selectbox("Selecione a Empresa:", nomes_empresas) # faz o selectbox com os nomes
-empresa_selecionada_id = name_to_id[empresa_selecionada_nome] # captura o ID da empresa selecionada pelo nome
+company_ID = get_companyID()
+company_ID = int(company_ID)
 
 # Filtragem dos dados baseados na empresa selecionada
-df_products = df_products[df_products['company_id'] == empresa_selecionada_id]
-df_finances = df_finances[df_finances['company_id'] == empresa_selecionada_id]
+df_products = df_products[df_products['company_id'] == company_ID]
+df_finances = df_finances[df_finances['company_id'] == company_ID]
 
 # ----------------------------------------------------------------------------------------
 

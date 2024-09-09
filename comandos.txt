@@ -16,3 +16,11 @@ Usado para aplicar migrações ao banco de dados usando o Sequelize CLI (rodar a
 Usado para reverter migrações
 
 !! lembrar de criar o banco de dados "trabalho" ou mudarem no código para ter outro nome, e também mudar a senha do banco de dados de vocês.
+
+PARA DASHBOARD fazer essas modificações:
+ - Arquivo 'node_sequelize/src/data-analisys/start_server.py': Colar caminho do arquivo 'dashboard.py'
+ - Arquivo 'node_sequelize/src/data-analisys/dashboard.py': 
+    * Colar caminho do arquivo 'company_id.txt', que está na pasta 'node_sequelize/src/controllers'
+    * Alterar credenciais do seu banco de dados
+ - Arquivo 'node_sequelize/src/data-analisys/start_server.py': Colar caminho do arquivo 'dashboard.py'
+ - Arquivo 'node_sequelize/src/controllers/AnalyticsController.js': Colar caminho da pasta 'node_sequelize/src/data-analisys'

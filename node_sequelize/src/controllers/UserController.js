@@ -14,14 +14,13 @@ function generateToken(params = {}) {
 module.exports = {
   async login(req, res) {
     const { password, email } = req.body;
-    const {company_id} = req.params;
+    //const {company_id} = req.params;
 
     try {
-
       const user = await User.findOne({
         where: {
           email: email,
-          company_id: company_id, // Certifique-se de que o campo no banco de dados seja company_id
+          //company_id: company_id, // Certifique-se de que o campo no banco de dados seja company_id
         },
       });
 
@@ -39,18 +38,6 @@ module.exports = {
           user: {},
         });
       }
-
-      // Encontra o usuário pelo e-mail
-     // const user = await User.findOne({ where: { email } });
-
-      // Verifica se o usuário existe
-      // if (!user) {
-      //   return res.status(400).send({
-      //     status: 0,
-      //     message: "E-mail ou senha incorreto!",
-      //     user: {},
-      //   });
-      // }
 
       // Verifica a senha
       const isPasswordValid = bcrypt.compareSync(password, user.password);
@@ -96,17 +83,19 @@ module.exports = {
     }
   },
 
+  // Lista 1 usuário específico de uma empresa específica
+
   async index(req, res) {
     try {
       // Supondo que o ID da empresa venha do token do usuário ou outra fonte de autenticação
       const { user_id } = req.params;
-      const {company_id} = req.params;
+      const { company_id } = req.params;
 
       // Obtém o ID da empresa do usuário autenticado, ou qualquer outra lógica que você estiver usando
       // const user = await User.findByPk(user_id);
-      
+
       // const id_empresa = user.company_id; // Ajuste conforme o nome correto do campo
-      
+
       // Busca os usuários associados à empresa
       const users = await User.findOne({
         where: {
@@ -136,45 +125,113 @@ module.exports = {
     }
   },
 
-  async logout(req, res) {
-  try {
-    const { user_id } = req.params;
-    const {company_id} = req.params;
+  // Listas todos usuários do sistema
 
-    // Encontre o usuário pelo ID
-    const user = await User.findOne({
-      where: {
-        id: user_id
+  async indexAll(req, res) {
+    try {
+      // Supondo que o ID da empresa venha do token do usuário ou outra fonte de autenticação
+      const { user_id } = req.params;
+
+      // Busca os usuários associados à empresa
+      const users = await User.findAll({
+        attributes: { exclude: ["password"] }, // Exclui a senha da resposta
+      });
+
+      if (!users) {
+        return res.status(404).send({ message: "Usuário não encontrado." });
       }
-    });
 
-    // Verifique se o usuário foi encontrado
-    if (!user) {
-      return res.status(404).send({ message: "Usuário não cadastrado." });
-    }
+      if (users.length === 0) {
+        return res
+          .status(200)
+          .send({ message: "Nenhum usuário cadastrado para esta empresa." });
+      }
 
-    // Verifique se o usuário já está deslogado
-    if (!user.is_logged) {
-      return res.status(400).send({
+      return res.status(200).send({ users });
+    } catch (err) {
+      return res.status(500).send({
         status: 0,
-        message: "Usuário não está logado!",
+        message: "Erro ao buscar usuários.",
+        error: err.message,
       });
     }
+  },
 
-    // Atualize o campo is_logged para false
-    await User.update({ is_logged: false }, { where: { id: user_id } });
+  // Lista todos usuários de uma empresa específica
 
-    return res.status(200).send({
-      status: 1,
-      message: "Usuário deslogado com sucesso!",
-    });
-  } catch (error) {
-    return res.status(500).send({
-      status: 0,
-      message: "Erro ao tentar deslogar",
-      error: error.message,
-    });
-  }
+  async indexAllCompany(req, res) {
+    try {
+      const { company_id } = req.params;
+
+      // const id_empresa = user.company_id; // Ajuste conforme o nome correto do campo
+
+      // Busca os usuários associados à empresa
+      const users = await User.findAll({
+        where: {
+          company_id: company_id,
+        },
+        attributes: { exclude: ["password"] }, // Exclui a senha da resposta
+      });
+
+      if (!users) {
+        return res.status(404).send({ message: "Usuário não encontrado." });
+      }
+
+      if (users.length === 0) {
+        return res
+          .status(200)
+          .send({ message: "Nenhum usuário cadastrado para esta empresa." });
+      }
+
+      return res.status(200).send({ users });
+    } catch (err) {
+      return res.status(500).send({
+        status: 0,
+        message: "Erro ao buscar usuários.",
+        error: err.message,
+      });
+    }
+  },
+
+  async logout(req, res) {
+    try {
+      const { user_id } = req.params;
+      const { company_id } = req.params;
+
+      // Encontre o usuário pelo ID
+      const user = await User.findOne({
+        where: {
+          id: user_id,
+        },
+      });
+
+      // Verifique se o usuário foi encontrado
+      if (!user) {
+        return res.status(404).send({ message: "Usuário não cadastrado." });
+      }
+
+      // Verifique se o usuário já está deslogado
+      if (!user.is_logged) {
+        return res.status(400).send({
+          status: 0,
+          message: "Usuário não está logado!",
+        });
+      }
+
+      // Atualize o campo is_logged para false
+      await User.update({ is_logged: false }, { where: { id: user_id } });
+
+      return res.status(200).send({
+        status: 1,
+        message: "Usuário deslogado com sucesso!",
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: 0,
+        message: "Erro ao tentar deslogar",
+        error: error.message,
+      });
+    }
   },
 
   async store(req, res) {
@@ -312,7 +369,7 @@ module.exports = {
   async delete(req, res) {
     try {
       const { user_id } = req.params;
-      const {company_id} = req.params;
+      const { company_id } = req.params;
 
       // Verifica se o usuário existe
       const user = await User.findOne({
@@ -349,7 +406,7 @@ module.exports = {
 
   async forgotPassword(req, res) {
     const { cpf, birthday_date, newPassword } = req.body;
-    const { company_id } = req.params;
+    //const { company_id } = req.params;
 
     // Validação dos dados de entrada
     if (!cpf || !birthday_date || !newPassword) {
@@ -362,7 +419,7 @@ module.exports = {
     const user = await User.findOne({
       where: {
         cpf: cpf,
-        company_id: company_id, // Certifique-se de que o campo no banco de dados seja company_id
+        //company_id: company_id, // Certifique-se de que o campo no banco de dados seja company_id
       },
     });
 
@@ -372,7 +429,6 @@ module.exports = {
         message: "Usuário não encontrado nesta empresa.",
       });
     }
-
 
     try {
       // Converte a data fornecida para o formato YYYY-MM-DD
@@ -404,7 +460,8 @@ module.exports = {
           status: 0,
           message: "CPF ou data de nascimento incorretos!",
         });
-      }8081
+      }
+      8081;
 
       // Atualiza a senha com criptografia
       const salt = bcrypt.genSaltSync();
